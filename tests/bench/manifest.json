@@ -1,0 +1,10 @@
+{
+  "_about": "Accuracy benchmark songs (audio and references live in tests/real, not in git). key: [root 0-11, 'm' or ''] from the score; bpm: the score's tempo (soft check: recordings may differ); sheet: <song>_sheet.txt chord order (partial = only the start of the song); midi: score for instrumental melody",
+  "phobrak":   {"key": [2, ""],  "bpm": 92, "sheet": "phobrak_sheet.txt", "source": "score images (music-yours)"},
+  "imok":      {"key": [4, ""],  "bpm": 68, "sheet": "imok_sheet.txt", "partial": true, "source": "score image page 1 (music-yours)"},
+  "firstlove": {"key": [7, ""],  "bpm": 83, "source": "firstlove.mxl piano arrangement (1 sharp, no chord symbols)"},
+  "chopin":    {"key": [3, ""],  "midi": "chopin_nocturne_op9_n2.mid", "source": "Nocturne op.9 no.2 in E-flat major"},
+  "todao":     {},
+  "kukkhao":   {},
+  "anthem":    {}
+}

@@ -1,0 +1,25 @@
+__pycache__/
+*.pyc
+backend/data/
+dist/
+web/i18n/missing.json
+*.mp3
+*.m4a
+.DS_Store
+# chord sheets and lyrics copied from websites stay local (copyrighted)
+tests/ocr/sheet_*
+tests/real/*sheet*.txt
+tests/real/*chordtabs*
+tests/first_love_sheet.txt
+.venv/
+# scores, chord sheets and reference lyrics of the user's test songs stay local (copyrighted)
+tests/real/*.mxl
+tests/real/*.musicxml
+tests/real/*.mid
+tests/real/*.pdf
+tests/real/*.pptx
+tests/real/*.png
+tests/real/*.jpg
+tests/real/*_ref.txt
+.wrangler/
+backend/data-free/

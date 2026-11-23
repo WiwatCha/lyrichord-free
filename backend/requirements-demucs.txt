@@ -1,0 +1,2 @@
+# optional: vocal / bass / drums separation. Install torch first (CPU or CUDA build), then:
+demucs==4.0.1

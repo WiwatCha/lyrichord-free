@@ -1,0 +1,15 @@
+# Deploy: python3 build.py && python3 tools/make_pages.py && npx wrangler deploy --config tools/cloudflare/wrangler.toml
+name = "lyricord"
+main = "worker.js"
+compatibility_date = "2025-09-01"
+workers_dev = true
+preview_urls = false
+
+[assets]
+directory = "../../dist/lyricord-pages"
+binding = "ASSETS"
+
+# the Mac's current address, by hash of its access key (create once: npx wrangler kv namespace create WHERE)
+[[kv_namespaces]]
+binding = "WHERE"
+id = "REPLACE_WITH_YOUR_KV_ID"

@@ -1,0 +1,2 @@
+# optional: lyrics transcription (Thai + English) with word timestamps
+faster-whisper==1.1.1

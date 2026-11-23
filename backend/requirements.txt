@@ -1,0 +1,17 @@
+fastapi>=0.110
+uvicorn[standard]>=0.29
+python-multipart
+numpy
+scipy
+librosa>=0.10
+soundfile
+yt-dlp
+av  # PyAV: decodes mp3/m4a/webm/mp4 with bundled FFmpeg libraries (no system ffmpeg needed)
+onnxruntime
+Pillow  # OCR of lyric / chord-sheet images
+# dependencies of basic-pitch (basic-pitch itself is installed with --no-deps, see README)
+pretty-midi
+mir-eval
+resampy<0.4.3
+scikit-learn
+segno  # QR code for connecting a phone (start-online)

@@ -1,0 +1,33 @@
+# Runs the Windows start-online launcher against a fake "docker" (tests/launch/docker.cmd):
+# checks the batch file itself parses and reaches the end on a real Windows cmd.exe.
+name: Launcher test (Windows)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: start-online.bat with a fake docker
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force fake | Out-Null
+          & "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /out:fake\docker.exe tests\launch\FakeDocker.cs
+          $env:PATH = "$PWD\fake;" + $env:PATH
+          docker logs x
+          $env:LYRICORD_WINDOW = "1"
+          $fails = 0
+          foreach ($pages in @("", "https://lyricord.example.workers.dev/")) {
+            foreach ($script in @("launch\windows\start-online.bat", "tests\launch\start-online-r11.bat")) {
+              Set-Content -Path launch\pages-url.txt -Value $pages -NoNewline -Encoding utf8
+              if ($script -like "tests*") { Copy-Item $script launch\windows\start-online-r11.bat; $run = "launch\windows\start-online-r11.bat" } else { $run = $script }
+              $out = cmd /c "echo x| $run 2>&1"
+              $ok = ($out -join "`n") -match "Backend address : https://abc-def-ghi\.trycloudflare\.com" -and ($out -join "`n") -match "Access key\s+: TESTKEY123" -and ($out -join "`n") -match "Online access stopped"
+              Write-Host "===== $run  pages='$pages'  -> $(if ($ok) {'OK'} else {'FAILED'})"
+              $out | ForEach-Object { Write-Host "   $_" }
+              if (-not $ok -and $run -notlike "*r11*") { $fails++ }
+            }
+          }
+          if ($fails) { exit 1 }
