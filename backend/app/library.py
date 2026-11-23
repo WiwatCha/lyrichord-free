@@ -1,8 +1,8 @@
 """Song library: every analysed song stays on this computer, with the user's edits, until the user deletes it.
 
-    <DATA>/<job id>/song.json   the analysis result + title, kind, YouTube id, SHA-256 of the audio, times
+    <DATA>/<job id>/song.json   the analysis result + title, kind, source id, SHA-256 of the audio, times
     <DATA>/<job id>/edits.json  what the user changed (the page's savedData: chords, lyrics, key shift, bars)
-    <DATA>/<job id>/upload.* | youtube audio   the song itself
+    <DATA>/<job id>/upload.*    the song itself
 
 Working files (separated stems, Basic Pitch audio, de-reverbed vocals; ~100 MB a song) are kept for the most
 recent KEEP_FULL songs only; an older song re-analysed makes them again (Demucs ~20 s).

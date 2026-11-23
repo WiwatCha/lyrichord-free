@@ -63,6 +63,8 @@ def setup_env() -> None:
     env = os.environ
     env.setdefault("DATA_DIR", str(DATA))
     env.setdefault("LYRICORD_EDITION", EDITION)
+    # Wi-Fi mode: phones and tablets on the same network open the app (with the access key); on in Lyrichord Free
+    env.setdefault("LYRICORD_LAN", "1" if EDITION == "free" else "0")
     env.setdefault("BTC_DIR", str(MODELS / "btc"))
     env.setdefault("OCR_MODEL_DIR", str(MODELS / "ppocr"))
     env.setdefault("BEAT_THIS_CKPT", str(MODELS / "beat_this-final0.ckpt"))
@@ -126,7 +128,8 @@ class Server:
         from app.main import app  # noqa: imported after setup_env so the models are found
 
         self.port = port
-        self.srv = uvicorn.Server(uvicorn.Config(app, host="127.0.0.1", port=port, log_config=None, access_log=False))
+        host = "0.0.0.0" if os.environ.get("LYRICORD_LAN") == "1" else "127.0.0.1"  # 0.0.0.0: reachable on the Wi-Fi (key required)
+        self.srv = uvicorn.Server(uvicorn.Config(app, host=host, port=port, log_config=None, access_log=False))
         self.thread = threading.Thread(target=self.srv.run, daemon=True)
 
     def start(self) -> None:
@@ -193,6 +196,9 @@ def window(server: Server) -> None:
     online = tk.StringVar(value="")
     tk.Label(root, textvariable=online, font=("Helvetica", 11), fg="#555", wraplength=360, justify="center").pack(padx=18)
     qr_btn = tk.Button(root, text="QR สำหรับ iPhone / iPad", width=24, command=lambda: webbrowser.open(f"http://127.0.0.1:{server.port}/?showqr=1"))
+    if os.environ.get("LYRICORD_LAN") == "1":  # Wi-Fi mode: a QR code for phones and tablets on the same network
+        tk.Button(root, text="ใช้บนมือถือ / iPad (Wi-Fi เดียวกัน) / Phones", width=34,
+                  command=lambda: webbrowser.open(f"http://127.0.0.1:{server.port}/?showlan=1")).pack(pady=(0, 10))
     tunnel = {"t": None}
 
     def watch_online():

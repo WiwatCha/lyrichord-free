@@ -136,7 +136,9 @@ const API = (() => {
   if (q.has('api') || q.has('key')) { q.delete('api'); q.delete('key'); history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '')); }
   // online page: keep the key in the address (after #) so "Add to Home Screen" saves it; on iPhone a home-screen
   // app does not share Safari's storage, so without this the icon would open without the key
-  if (ONLINE_PAGE && k && hk !== k) history.replaceState(null, '', location.pathname + location.search + '#key=' + encodeURIComponent(k));
+  // the same on another device of the Wi-Fi (the page opened at this computer's network address)
+  const remoteHost = !/^(localhost|127\.|\[::1\])/.test(location.hostname) && /^https?:/.test(location.protocol);
+  if ((ONLINE_PAGE || remoteHost) && k && hk !== k) history.replaceState(null, '', location.pathname + location.search + '#key=' + encodeURIComponent(k));
   return { base: (b || '').trim().replace(/\/+$/, ''), key: (k || '').trim() };
 })();
 function apiURL(path) {
@@ -181,8 +183,7 @@ async function poll(s, id, url) {
     let j;
     try { const r = await fetch(api('jobs/' + id)); j = await r.json(); if (!r.ok) throw new Error(j.detail); }
     catch (e) { return fail(s, (e && e.message) || 'ติดต่อหลังบ้านไม่ได้'); }
-    if (j.title && s.kind === 'youtube' && !/^YouTube /.test(j.title)) s.name = j.title;
-    if (j.status === 'done') { if (j.title && s.kind !== 'youtube' && s.fromLib) s.name = j.title; return finish(s, j.result, url || apiURL(j.audio_url), j.edits && Object.keys(j.edits).length ? j.edits : null); }
+    if (j.status === 'done') { if (j.title && s.kind === 'file' && s.fromLib) s.name = j.title; return finish(s, j.result, url || apiURL(j.audio_url), j.edits && Object.keys(j.edits).length ? j.edits : null); }
     if (j.status === 'error') return fail(s, j.error);
     progressOf(s, j.stage, j.progress);
     await new Promise(r => setTimeout(r, 900));
@@ -228,25 +229,6 @@ async function serverUpload(s, f, url) {
     await poll(s, j.id, url);
   } catch (e) { fail(s, (e && e.message) || 'ส่งไฟล์ไม่สำเร็จ'); }
 }
-async function addYoutube(link) {
-  link = link.trim();
-  const m = link.match(/^https?:\/\/(?:www\.|m\.|music\.)?(?:youtube\.com\/(?:watch\?v=|shorts\/|live\/)|youtu\.be\/)([\w-]{6,})/);
-  if (!m) { hint('ลิงก์นี้ไม่ใช่ลิงก์คลิป YouTube', true); return; }
-  if (!S.backend) { hint('การแกะจากลิงก์ YouTube ต้องเปิดแอปผ่านหลังบ้าน (http://localhost:8000) หรือใช้ปุ่ม "เสียงจากแท็บ" แทน', true); return; }
-  hint('');
-  const s = addSource('youtube', 'YouTube · ' + m[1], { server: true, vid: m[1] });
-  switchTo(s.id);
-  const go = async () => {
-    try {
-      const r = await fetch(api('jobs/youtube'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: link }) }), j = await r.json();
-      if (!r.ok) throw new Error(j.detail);
-      await poll(s, j.id, null);
-    } catch (e) { fail(s, (e && e.message) || 'ติดต่อหลังบ้านไม่ได้'); }
-  };
-  s.retry = () => { s.status = 'analyzing'; s.progress = 0; renderAll(); go(); };
-  progressOf(s, 'กำลังส่งลิงก์ไปหลังบ้าน', 0.01); go();
-  $('#yturl').value = '';
-}
 
 // ================= live: mic / tab =================
 function addLive(kind) {
@@ -265,7 +247,7 @@ async function startLive(s) {
   } catch (e) {
     hint(s.kind === 'mic'
       ? 'ใช้ไมค์ไม่ได้: ต้องเปิดแอปผ่าน http://localhost หรือ https:// แล้วกดอนุญาตไมค์ (ในหน้า claude.ai ใช้ไมค์ไม่ได้)'
-      : 'แชร์เสียงจากแท็บไม่ได้: ใช้ Chrome บนคอมพิวเตอร์ เลือกแท็บ YouTube และติ๊ก "แชร์เสียงในแท็บ"', true);
+      : 'แชร์เสียงจากแท็บไม่ได้: ใช้ Chrome บนคอมพิวเตอร์ เลือกแท็บที่เล่นเพลง และติ๊ก "แชร์เสียงในแท็บ"', true);
     s.status = 'stopped'; renderSources(); renderAll(); return;
   }
   if (!stream.getAudioTracks().length) { stream.getTracks().forEach(t => t.stop()); hint('ไม่มีเสียงมาด้วย ตอนเลือกแท็บให้ติ๊ก "แชร์เสียงในแท็บ"', true); return; }

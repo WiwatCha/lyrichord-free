@@ -98,7 +98,7 @@ RUN if [ -d /opt/models/btc ]; then \
       || (rm -rf /opt/models/btc; echo "WARNING: BTC self-test failed, using the template decoder"); \
     fi
 # models are inside the image now: never reach out to the internet for them
-ENV LYRICORD_EDITION=free DATA_DIR=/data USE_DEMUCS=${WITH_DEMUCS} USE_WHISPER=${WITH_WHISPER} WHISPER_MODEL=${WHISPER_MODEL} \
+ENV LYRICORD_EDITION=free LYRICORD_LAN=1 DATA_DIR=/data USE_DEMUCS=${WITH_DEMUCS} USE_WHISPER=${WITH_WHISPER} WHISPER_MODEL=${WHISPER_MODEL} \
     HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 ALLOW_MODEL_FETCH=1 UVR_MODEL_DIR=/opt/models/uvr
 EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

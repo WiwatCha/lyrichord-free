@@ -1,7 +1,7 @@
 """Audio -> lead sheet JSON.
 
 Stages (each reports progress through `report(stage, fraction)`):
-  1. get audio      : YouTube link (yt-dlp) or uploaded file
+  1. get audio      : the uploaded file
   2. separate       : Demucs htdemucs -> vocals / bass / drums / other (skipped if Demucs is not installed)
   3. beats          : librosa beat tracker on drums+bass (or the mix)
   4. harmony        : Basic Pitch note posteriors on bass+other -> per-beat pitch-class profiles -> chords
@@ -59,7 +59,6 @@ def chord_fit(pcs: np.ndarray, bss: np.ndarray, low: np.ndarray) -> float:
     sc = [float(np.max(CH.score_all(p, b))) for p, b, l in zip(pcs, bss, low) if not l]
     return float(np.mean(sc)) if sc else 0.0
 POST_FLOOR = 0.2  # Basic Pitch posteriors below this are treated as silence (tuned on tests/vocab.wav)
-YT_RE = re.compile(r"^https?://(www\.|m\.|music\.)?(youtube\.com/(watch\?v=|shorts/|live/)|youtu\.be/)[\w-]{6,}")
 
 
 class PipelineError(Exception):
@@ -74,43 +73,6 @@ def has_demucs() -> bool:
     return os.environ.get("USE_DEMUCS", "1") != "0" and importlib.util.find_spec("demucs") is not None
 
 
-def youtube_id(url: str) -> str | None:
-    m = re.search(r"(?:v=|youtu\.be/|shorts/|live/)([\w-]{6,})", url)
-    return m.group(1) if m else None
-
-
-# ---------------------------------------------------------------- 1. get audio
-def download_youtube(url: str, workdir: Path, report: Report) -> tuple[Path, str]:
-    if not YT_RE.match(url.strip()):
-        raise PipelineError("ลิงก์นี้ไม่ใช่ลิงก์คลิป YouTube")
-    import yt_dlp
-
-    def hook(d):
-        if d.get("status") == "downloading" and d.get("total_bytes"):
-            report("กำลังดาวน์โหลดเสียงจาก YouTube", 0.15 * d["downloaded_bytes"] / d["total_bytes"])
-
-    opts = {
-        "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio",
-        "fixup": "never",  # no ffmpeg needed: PyAV decodes the file as downloaded
-        "outtmpl": str(workdir / "source.%(ext)s"),
-        "noplaylist": True,
-        "quiet": True,
-        "no_warnings": True,
-        "progress_hooks": [hook],
-        "match_filter": yt_dlp.utils.match_filter_func(f"duration <= {MAX_SECONDS}"),
-    }
-    try:
-        with yt_dlp.YoutubeDL(opts) as ydl:
-            info = ydl.extract_info(url, download=True)
-    except Exception as e:  # network, private video, age gate, etc.
-        log.warning("yt-dlp failed: %s", e)
-        raise PipelineError("ดึงเสียงจาก YouTube ไม่ได้ (คลิปอาจเป็นส่วนตัว จำกัดอายุ หรือเซิร์ฟเวอร์ต่อ YouTube ไม่ได้)") from e
-    if info is None:
-        raise PipelineError(f"คลิปยาวเกิน {MAX_SECONDS // 60} นาที")
-    files = sorted(workdir.glob("source.*"))
-    if not files:
-        raise PipelineError(f"คลิปยาวเกิน {MAX_SECONDS // 60} นาที หรือไม่มีเสียง")
-    return files[0], info.get("title") or "YouTube"
 
 
 def decode_audio(path: Path, sr: int, mono: bool) -> np.ndarray:

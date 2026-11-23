@@ -36,7 +36,7 @@ WEB = Path(os.environ.get("WEB_DIR", ROOT / "web"))
 VERSION = (ROOT / "VERSION").read_text().strip() if (ROOT / "VERSION").exists() else "dev"
 MAX_UPLOAD_MB = int(os.environ.get("MAX_UPLOAD_MB", 200))
 KEEP_JOBS = int(os.environ.get("KEEP_JOBS", 50))
-# Lyrichord Free (given away): no YouTube download (YouTube's terms), no UVR de-reverb (unclear licence)
+# Lyrichord Free (given away): files and live audio only, no UVR de-reverb (unclear licence)
 EDITION = "free" if os.environ.get("LYRICORD_EDITION") == "free" else "full"
 DATA.mkdir(parents=True, exist_ok=True)
 
@@ -66,14 +66,23 @@ def _access_key() -> str:
 ACCESS_KEY = _access_key()
 
 
+LOOPBACK = ("127.0.0.1", "::1", "localhost")
+
+
+def remote(request) -> bool:
+    """Not this computer: through Cloudflare (cf-ray, which a visitor cannot remove) or another device on the
+    network (Wi-Fi mode, LYRICORD_LAN=1). Those must bring the access key."""
+    return bool(request.headers.get("cf-ray")) or (request.client is not None and request.client.host not in LOOPBACK)
+
+
 @app.middleware("http")
 async def need_key_online(request, call_next):
-    """Requests through Cloudflare (they carry cf-ray, which a visitor cannot remove) must bring the key.
-    Opening the app on this computer (localhost) needs no key. /api/health stays open so the page can say what is wrong."""
+    """Requests from another device must bring the key; opening the app on this computer needs none.
+    /api/health stays open so the page can say what is wrong."""
     import hmac
 
     p = request.url.path
-    if (request.method != "OPTIONS" and p.startswith("/api/") and p != "/api/health" and request.headers.get("cf-ray")
+    if (request.method != "OPTIONS" and p.startswith("/api/") and p != "/api/health" and remote(request)
             and not hmac.compare_digest(request.query_params.get("key") or request.headers.get("x-lyricord-key") or "", ACCESS_KEY)):
         return JSONResponse({"detail": "ต้องใส่รหัสเข้าใช้หลังบ้าน (ดูในหน้าต่าง start-online)"}, status_code=401)
     return await call_next(request)
@@ -89,7 +98,7 @@ app.add_middleware(CORSMiddleware, allow_origins=[o for o in os.environ.get("COR
 @dataclass
 class Job:
     id: str
-    kind: str  # youtube | upload
+    kind: str  # how the song came in (upload, ...)
     title: str = ""
     status: str = "queued"  # queued | running | done | error
     stage: str = "รอคิว"
@@ -100,7 +109,7 @@ class Job:
     created: float = field(default_factory=time.time)
     relisten: dict = field(default_factory=dict)  # second lyrics pass with the user's lyrics: status / stage / lyrics
     lyrics_pending: bool = False  # "done" with the sheet; Whisper is still hearing the words (result.lyrics_pending)
-    vid: str = ""  # YouTube id
+    vid: str = ""  # id of a linked source (full app)
     sha: str = ""  # SHA-256 of the uploaded file: the same song added again opens from the library
 
     def public(self) -> dict:
@@ -114,7 +123,7 @@ class Job:
 
 
 JOBS: dict[str, Job] = {}
-YT_CACHE: dict[str, str] = {}
+SRC_CACHE: dict[str, str] = {}
 LOCK = threading.Lock()
 def _ram_gb() -> float:
     try:
@@ -150,9 +159,9 @@ def _prune() -> None:
                 continue
             JOBS.pop(j.id, None)
             if not (DATA / j.id / LIB.SONG).exists():
-                for k, v in list(YT_CACHE.items()):
+                for k, v in list(SRC_CACHE.items()):
                     if v == j.id:
-                        YT_CACHE.pop(k)
+                        SRC_CACHE.pop(k)
                 shutil.rmtree(DATA / j.id, ignore_errors=True)
 
 
@@ -191,9 +200,9 @@ def _persist(job: Job) -> None:
         log.exception("could not save %s to the library", job.id)
 
 
-for _d, _s in LIB.all_songs(DATA):  # YouTube links already in the library open from it
+for _d, _s in LIB.all_songs(DATA):  # linked sources already in the library open from it
     if _s.get("vid"):
-        YT_CACHE.setdefault(_s["vid"], _d.name)
+        SRC_CACHE.setdefault(_s["vid"], _d.name)
 
 
 def _run(job: Job, url: str | None, upload: Path | None, tune: str = "auto", tempo: str = "auto") -> None:
@@ -218,10 +227,6 @@ def _run(job: Job, url: str | None, upload: Path | None, tune: str = "auto", tem
     try:
         if job.audio and job.audio.exists():  # re-analysis: reuse the audio we already have
             src = job.audio
-        elif url:
-            report("กำลังดาวน์โหลดเสียงจาก YouTube", 0.02)
-            src, title = PL.download_youtube(url, wd, report)
-            job.title = title
         else:
             src = upload
         job.audio = src
@@ -271,8 +276,6 @@ def _new_job(kind: str, title: str) -> Job:
     return job
 
 
-class YoutubeIn(BaseModel):
-    url: str
 
 
 @app.get("/api/online")
@@ -280,10 +283,25 @@ def online(request: Request):
     """Link + QR for phones while start-online runs. Only for the app opened on this computer (never via the tunnel)."""
     from . import online as ON
 
-    if request.headers.get("cf-ray"):
+    if remote(request):
         raise HTTPException(403, "only on this computer")
     i = ON.info()
     return {**i, "qr": ON.qr_svg(i["link"])} if i else {}
+
+
+@app.get("/api/lan")
+def lan(request: Request):
+    """Wi-Fi mode: the address phones and tablets on the same network open (with the key), and its QR code.
+    Only for the app opened on this computer. Works without internet (a router or a phone hotspot is enough)."""
+    from . import online as ON
+
+    if remote(request):
+        raise HTTPException(403, "only on this computer")
+    on = os.environ.get("LYRICORD_LAN") == "1"
+    ips = ON.lan_ips() if on else []
+    port = request.url.port or 80
+    links = [f"http://{ip}:{port}/?key={ACCESS_KEY}" for ip in ips]
+    return {"on": on, "ips": ips, "port": port, "link": links[0] if links else "", "qr": ON.qr_svg(links[0]) if links else ""}
 
 
 @app.get("/api/health")
@@ -291,7 +309,7 @@ def health(request: Request):
     import hmac
     import importlib.util
 
-    online = bool(request.headers.get("cf-ray"))
+    online = remote(request)
     key_ok = not online or hmac.compare_digest(request.query_params.get("key") or request.headers.get("x-lyricord-key") or "", ACCESS_KEY)
 
     return {
@@ -308,30 +326,12 @@ def health(request: Request):
         "ocr": OCR.available(),
         "btc": CN.available(),
         "basic_pitch": importlib.util.find_spec("basic_pitch") is not None,
-        "youtube": importlib.util.find_spec("yt_dlp") is not None,
         "max_minutes": PL.MAX_SECONDS // 60,
         "whisper_model": PL.WHISPER_MODEL if PL.has_whisper() else None,
         "offline_models": os.environ.get("HF_HUB_OFFLINE") == "1",
     }
 
 
-@app.post("/api/jobs/youtube")
-def create_youtube(body: YoutubeIn):
-    if EDITION == "free":
-        raise HTTPException(404, "รุ่นนี้ไม่มีการแกะจาก YouTube ใช้ไฟล์เพลงหรือเสียงจากแท็บแทน")
-    url = body.url.strip()
-    if not PL.YT_RE.match(url):
-        raise HTTPException(400, "ลิงก์นี้ไม่ใช่ลิงก์คลิป YouTube")
-    vid = PL.youtube_id(url)
-    cached = _job(YT_CACHE.get(vid or "", ""))
-    if cached and cached.status in ("queued", "running", "done"):
-        return cached.public()
-    job = _new_job("youtube", "YouTube " + (vid or ""))
-    job.vid = vid or ""
-    if vid:
-        YT_CACHE[vid] = job.id
-    POOL.submit(_run, job, url, None)
-    return job.public()
 
 
 @app.post("/api/ocr")
@@ -548,9 +548,9 @@ def delete_song(song_id: str):
         raise HTTPException(409, "เพลงนี้กำลังวิเคราะห์อยู่ รอให้เสร็จก่อนแล้วค่อยลบ")
     with LOCK:
         JOBS.pop(song_id, None)
-        for k, v in list(YT_CACHE.items()):
+        for k, v in list(SRC_CACHE.items()):
             if v == song_id:
-                YT_CACHE.pop(k)
+                SRC_CACHE.pop(k)
     shutil.rmtree(DATA / song_id, ignore_errors=True)
     return {"ok": True}
 

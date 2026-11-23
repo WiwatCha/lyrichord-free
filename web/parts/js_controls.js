@@ -69,7 +69,6 @@ function features() {
     ['ส่งออก PDF', 'off', 'สร้างในเครื่อง'],
     ['ส่งออก PowerPoint', S.pptLocal ? 'off' : on ? 'net' : 'no', S.pptLocal ? 'ตัวสร้างอยู่ในแอป' : 'โหลดตัวสร้างจากเน็ตครั้งแรก'],
     ['ไมค์ / เสียงจากแท็บ (สด)', window.isSecureContext && navigator.mediaDevices ? 'off' : 'no', window.isSecureContext ? 'ประมวลผลในเครื่อง' : 'ต้องเปิดผ่าน http://localhost หรือ https'],
-    ['แกะจากลิงก์ YouTube', !h ? 'no' : on ? 'net' : 'no', !h ? 'ต้องเปิดผ่านหลังบ้าน' : on ? 'ต้องใช้เน็ต (เชื่อมต่ออยู่)' : 'ตอนนี้ออฟไลน์'],
   ];
 }
 function renderStatus() {
@@ -84,7 +83,6 @@ function renderStatus() {
     `<input id="apiurl" type="url" placeholder="https://xxxx.trycloudflare.com" value="${esc(API.base)}"><input id="apikey" placeholder="${'รหัสเข้าใช้'}" value="${esc(API.key)}">` +
     `<div class="row"><button class="btn" id="apiset">${'เชื่อมต่อ'}</button>${API.base ? `<button class="btn" id="apiclr">${'เลิกเชื่อมต่อ'}</button>` : ''}</div></div>` +
     (S.online && S.online.link ? `<div class="stqr"><strong>${'ใช้บน iPhone / iPad'}</strong><p class="hint">${'สแกน QR ด้วยกล้อง แล้วแตะลิงก์ที่ขึ้นมา (เปิดใน Safari) ต่อหลังบ้าน AI ของคอมเครื่องนี้ได้ทันที'}</p>${S.online.qr}<input readonly value="${esc(S.online.link)}" onclick="this.select()"></div>` : '');
-  const yb = $('#ytbtn'); yb.disabled = !on; yb.title = on ? '' : 'ต้องต่ออินเทอร์เน็ต';
 }
 // start-online is running on this computer: show the QR code for phones / tablets
 async function loadOnline() {
@@ -237,7 +235,6 @@ $('#stagebtn').addEventListener('click', () => startStage(null));
 $('#helpbtn').addEventListener('click', () => startTour());
 $('#libq').addEventListener('input', e => { S.libQ = e.target.value; renderLibrary(); });
 $('#liblist').addEventListener('click', libAction);
-$('#ytform').addEventListener('submit', e => { e.preventDefault(); addYoutube($('#yturl').value); });
 $('#adddemo').addEventListener('click', () => { const d = S.sources.find(s => s.kind === 'demo'); if (d) switchTo(d.id); else addDemo(); });
 $('#addmic').addEventListener('click', () => addLive('mic'));
 $('#addtab').addEventListener('click', () => addLive('tab'));
@@ -302,7 +299,7 @@ if (EDITION !== 'free') addDemo(); else renderAll();
 $('#ver').textContent = 'v' + APP_VERSION;
 checkBackend().then(async h => {
   S.backend = h;
-  if (h && h.edition === 'free') document.body.classList.add('free');  // a free backend has no YouTube, whatever page it serves
+  if (h && h.edition === 'free') document.body.classList.add('free');  // a free backend: the free look, whatever page it serves
   // a page and a server from different versions: say so plainly (usually an old app still installed or running)
   if (h && h.version !== APP_VERSION) {
     const w = document.createElement('p'); w.className = 'verwarn'; w.id = 'verwarn';
@@ -313,6 +310,7 @@ checkBackend().then(async h => {
   renderStatus();
   loadLibrary();
   await loadOnline();
+  if (new URLSearchParams(location.search).has('showlan')) openLan();
   if (new URLSearchParams(location.search).has('showqr') && S.online) { const p = $('#stpop'); p.hidden = false; const r = $('#stbtn').getBoundingClientRect(); p.style.top = (r.bottom + scrollY) + 'px'; }
   if (S.backendErr === 'key') hint('หลังบ้านออนไลน์: รหัสเข้าใช้ไม่ถูกต้อง แก้ได้ที่ปุ่มสถานะมุมขวาบน', true);
   else if (S.backendErr === 'nomac' || (S.backendErr === 'down' && ONLINE_PAGE && S.macFound === false)) hint('ยังติดต่อ Mac ที่บ้านไม่ได้: เปิดแอป Lyrichord บน Mac ไว้ (ต้องติดตั้ง cloudflared) แล้วรีโหลดหน้านี้ ระหว่างนี้ใช้แบบแกะในเครื่องนี้ไปก่อน', true);

@@ -95,7 +95,7 @@ const blobB64 = b => new Promise((ok, no) => { const r = new FileReader(); r.onl
 const b64Blob = (b64, type) => { const bin = atob(b64), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return new Blob([u], { type }); };
 async function songEntry(s, withAudio) {
   const res = { ...s.res }; delete res.lyrics_pending;
-  const e = { name: s.name, kind: s.kind === 'youtube' ? 'youtube' : 'file', vid: s.vid || null, res, saved: savedData(s), audio: null };
+  const e = { name: s.name, kind: s.kind === LINKED ? LINKED : 'file', vid: s.vid || null, res, saved: savedData(s), audio: null };
   if (withAudio && s.url) { try { const b = await (await fetch(s.url)).blob(); e.audio = { type: b.type || 'audio/mpeg', b64: await blobB64(b) }; } catch (err) { console.error(err); } }
   return e;
 }
@@ -119,7 +119,7 @@ async function importSet(f) {
     let url = null;
     if (e.audio && e.audio.b64) { try { url = URL.createObjectURL(b64Blob(e.audio.b64, e.audio.type || 'audio/mpeg')); } catch {} }
     if (!url) noAudio++;
-    const s = addSource(e.kind === 'youtube' && e.vid ? 'youtube' : 'file', String(e.name || T('เพลง')), { vid: e.vid || undefined, imported: true });
+    const s = addSource(e.kind === LINKED && e.vid ? LINKED : 'file', String(e.name || T('เพลง')), { vid: e.vid || undefined, imported: true });
     if (!n) switchTo(s.id);
     finish(s, r, url, e.saved && typeof e.saved === 'object' ? e.saved : null); save(s); n++;
   }
@@ -160,12 +160,12 @@ function renderLibrary() {
   if (S.libTab === 'sets') { renderSets(); return; }
   const q = (S.libQ || '').trim().toLowerCase(), open = new Set(S.sources.filter(s => s.jobId).map(s => s.jobId));
   const rows = S.lib.filter(x => !q || (x.title || '').toLowerCase().includes(q));
-  $('#liblist').innerHTML = !S.lib.length ? `<p class="hint">${T('ยังไม่มีเพลงในคลัง: เพลงที่แกะจากไฟล์หรือ YouTube จะถูกเก็บไว้ที่นี่เอง พร้อมทุกอย่างที่แก้')}</p>`
+  $('#liblist').innerHTML = !S.lib.length ? `<p class="hint">${T('ยังไม่มีเพลงในคลัง: เพลงที่แกะแล้วจะถูกเก็บไว้ที่นี่เอง พร้อมทุกอย่างที่แก้')}</p>`
     : !rows.length ? `<p class="hint">${T('ไม่พบเพลงที่ค้นหา')}</p>`
     : rows.map(x => {
       const key = x.key ? MA.name({ root: x.key.root, q: x.key.q, bass: -1 }) : '—';
       const tags = [x.edited ? `<span class="ltag e">${T('แก้ไว้')}</span>` : '', x.lyrics ? `<span class="ltag">${T('มีเนื้อร้อง')}</span>` : '', open.has(x.id) ? `<span class="ltag o">${T('เปิดไว้แล้ว')}</span>` : ''].join('');
-      return `<div class="lrow" data-lib="${esc(x.id)}"><span class="ic k-${x.kind === 'youtube' ? 'youtube' : 'file'}">${svgI(x.kind === 'youtube' ? 'youtube' : 'file')}</span>
+      return `<div class="lrow" data-lib="${esc(x.id)}"><span class="ic k-${x.kind === LINKED ? LINKED : 'file'}">${svgI(x.kind === LINKED ? LINKED : 'file')}</span>
         <div class="lmain"><b title="${esc(x.title)}">${esc(x.title)}</b><small>${T('คีย์')} ${key} · ${fmt(x.duration)} · ${x.bpm || '—'} BPM · ${when(x.updated)}</small><span class="ltags">${tags}</span></div>
         <div class="lacts"><button class="sbtn sm pri" data-la="open">${open.has(x.id) ? T('ไปที่เพลง') : T('เปิด')}</button><button class="zb" data-la="ren" aria-label="${T('เปลี่ยนชื่อ')}" title="${T('เปลี่ยนชื่อ')}">✎</button><button class="zb" data-la="del" aria-label="${T('ลบจากคลัง')}" title="${T('ลบจากคลัง')}">🗑</button></div></div>`;
     }).join('');
@@ -173,7 +173,7 @@ function renderLibrary() {
 function openLib(id) {
   const ex = S.sources.find(s => s.jobId === id); if (ex) { switchTo(ex.id); return; }
   const x = (S.lib || []).find(v => v.id === id) || { title: id, kind: 'upload' };
-  const s = addSource(x.kind === 'youtube' ? 'youtube' : 'file', x.title, { server: true, vid: x.vid || undefined, fromLib: true });
+  const s = addSource(x.kind === LINKED ? LINKED : 'file', x.title, { server: true, vid: x.vid || undefined, fromLib: true });
   switchTo(s.id); progressOf(s, 'กำลังเปิดจากคลังเพลง', 0.5);
   poll(s, id, null);
 }

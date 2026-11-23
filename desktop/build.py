@@ -33,7 +33,7 @@ VERSION = (BACKEND / "VERSION").read_text().strip()
 TORCH = "2.5.1"
 WIN, MAC = sys.platform == "win32", sys.platform == "darwin"
 ARCH = "arm64" if platform.machine().lower() in ("arm64", "aarch64") else "x64"
-# --edition free: Lyrichord Free (given away): no YouTube, no UVR de-reverb, its own app id and data folder
+# --edition free: Lyrichord Free (given away): files and live audio only, no UVR de-reverb, its own app id and data folder
 EDITION = "full"
 NAME, SLUG, BUNDLE_ID = "Lyrichord", "Lyrichord", "app.lyricord.desktop"
 

@@ -34,7 +34,6 @@ def api():
     from app.main import app
     c = TestClient(app)
     assert c.get("/api/health").json()["ok"]
-    assert c.post("/api/jobs/youtube", json={"url": "https://example.com/x"}).status_code == 400
     j = c.post("/api/jobs/upload", files={"file": ("demo.wav", (HERE / "demo.wav").open("rb"), "audio/wav")}).json()
     for _ in range(240):
         j = c.get(f"/api/jobs/{j['id']}").json()

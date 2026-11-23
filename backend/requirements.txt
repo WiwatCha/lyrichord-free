@@ -5,7 +5,6 @@ numpy
 scipy
 librosa>=0.10
 soundfile
-yt-dlp
 av  # PyAV: decodes mp3/m4a/webm/mp4 with bundled FFmpeg libraries (no system ffmpeg needed)
 onnxruntime
 Pillow  # OCR of lyric / chord-sheet images

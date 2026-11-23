@@ -11,12 +11,13 @@ const LV_HINT = { very: 'พื้นฐาน: 1 คอร์ดต่อห้
 const ICON = {
   demo: '<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',
   file: '<path d="M14 3H6v18h12V7z"/><path d="M14 3v4h4"/>',
-  youtube: '<rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9l5 3-5 3z" fill="currentColor"/>',
   mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/>',
   tab: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/>',
   grow: '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>', shrink: '<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>' };
 const svgI = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">${ICON[k]}</svg>`;
-const KIND = { demo: 'ตัวอย่าง', file: 'ไฟล์', youtube: 'YouTube', mic: 'ไมค์', tab: 'แท็บ' };
+const KIND = { demo: 'ตัวอย่าง', file: 'ไฟล์', mic: 'ไมค์', tab: 'แท็บ' };
+const LINKED = '';  // no linked sources in Lyrichord Free
+
 const SHAPES = {
   '': [[-1,3,2,0,1,0],[-1,4,6,6,6,4],[-1,-1,0,2,3,2],[-1,6,8,8,8,6],[0,2,2,1,0,0],[1,3,3,2,1,1],[2,4,4,3,2,2],[3,2,0,0,0,3],[4,6,6,5,4,4],[-1,0,2,2,2,0],[-1,1,3,3,3,1],[-1,2,4,4,4,2]],
   m:  [[-1,3,5,5,4,3],[-1,4,6,6,5,4],[-1,-1,0,2,3,1],[-1,6,8,8,7,6],[0,2,2,0,0,0],[1,3,3,1,1,1],[2,4,4,2,2,2],[3,5,5,3,3,3],[4,6,6,4,4,4],[-1,0,2,2,1,0],[-1,1,3,3,2,1],[-1,2,4,4,3,2]]
@@ -27,7 +28,7 @@ const pick = (v, ok, d) => ok.includes(v) ? v : d;
 const thaiUser = () => { try { return (navigator.languages || [navigator.language]).some(l => /^th/i.test(l || '')) || /Bangkok/.test(Intl.DateTimeFormat().resolvedOptions().timeZone || ''); } catch (e) { return false; } };
 let LANG = pick(store.get('cl-lang'), ['th', 'en'], thaiUser() ? 'th' : 'en');
 const APP_VERSION = /*VERSION*/'dev';
-// 'free' = Lyrichord Free (given away: no YouTube download, simple mode first, consent on first use); set by build.py --edition
+// 'free' = Lyrichord Free (given away: files and live audio only, simple mode first, consent on first use); set by build.py --edition
 const EDITION = /*EDITION*/'full';
 const APP_NAME = EDITION === 'free' ? 'Lyrichord Free' : 'Lyrichord';
 const ONLINE_PAGE = /*ONLINE*/false; // true in the copy on Cloudflare (tools/make_pages.py)

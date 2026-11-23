@@ -59,17 +59,13 @@ h1 span{color:var(--acc)}
 .strow small{grid-column:1 / -1;color:var(--mut);font-size:12px}
 .badge2{font-size:12px;padding:2px 9px;border-radius:999px;white-space:nowrap;font-weight:500}
 .b-off{background:rgb(61 220 151/.15);color:var(--ok)}.b-net{background:rgb(90 169 255/.15);color:var(--net)}.b-no{background:var(--soft);color:var(--dim)}
-.k-demo{--k:#8b7bff}.k-file{--k:#4c8dff}.k-youtube{--k:#ff4d4d}.k-mic{--k:#ff5a7a}.k-tab{--k:#ff9a3c}
+.k-demo{--k:#8b7bff}.k-file{--k:#4c8dff}.k-mic{--k:#ff5a7a}.k-tab{--k:#ff9a3c}
 .rack{margin:10px 0 10px;display:grid;gap:8px}
 .adds{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .adds button,.adds label{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);font-weight:500;cursor:pointer;white-space:nowrap}
 .adds button:hover,.adds label:hover{border-color:var(--k,var(--mut))}
 .dotk{width:10px;height:10px;border-radius:3px;background:var(--k);flex:none}
 .adds input[type=file]{position:absolute;opacity:0;width:1px;height:1px}
-.yt{display:flex;gap:8px;flex:1 1 360px}
-.yt input{flex:1;min-height:44px;border-radius:12px;border:1px solid var(--line);background:var(--card);padding:0 14px;font-size:16px}
-.yt button{min-height:44px;padding:0 14px;border-radius:12px;border:0;background:#ff4d4d;color:#fff;font-weight:700;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
-.yt button:disabled{background:var(--soft);color:var(--dim);cursor:not-allowed}
 .nettag{font-size:11px;font-weight:500;padding:1px 6px;border-radius:6px;background:rgb(0 0 0/.25)}
 .hint{font-size:13px;color:var(--mut);margin:0}
 .hint.err{color:var(--accink)}
@@ -299,7 +295,7 @@ body.d-hide .fig{display:none}
 @media(max-width:1560px){.tb .lb{display:none}}
 @media(max-width:900px){.stage{grid-template-columns:minmax(0,1fr)}.now{position:static;max-height:none;overflow:visible}body.v-now .nowg{grid-template-columns:minmax(0,1fr);grid-template-areas:'ban' 'big' 'dots' 'next' 'lyr' 'diag' 'mel'}}
 @media(max-width:700px){.le{grid-template-columns:minmax(0,1fr) auto auto}.tb{position:static}.bars{grid-template-columns:repeat(2,minmax(0,1fr))}.big{height:110px;font-size:54px}.liveg{grid-template-columns:minmax(0,1fr)}.le{grid-template-columns:auto minmax(0,1fr) auto}.le .tm{grid-column:1 / -1}}
-@media(max-width:520px){#dockhint{display:none}.adds button,.adds label{padding:0 12px;font-size:15px}.src{width:200px}.yt{flex-basis:100%}.cg{height:52px}.chip{font-size:19px}.tb .lb{display:none}.ct{font-size:21px}.cc{font-size:17px}}
+@media(max-width:520px){#dockhint{display:none}.adds button,.adds label{padding:0 12px;font-size:15px}.src{width:200px}.cg{height:52px}.chip{font-size:19px}.tb .lb{display:none}.ct{font-size:21px}.cc{font-size:17px}}
 .keyrel{font-size:12px;color:var(--mut);margin-left:6px;font-weight:400}
 
 /* round B: quick chord choices, inline lyric editor, drag and drop */
@@ -388,7 +384,6 @@ body.lay-lr.d-hide .vsplit{pointer-events:none}body.lay-lr.d-hide .vsplit i{visi
 .helppop button{min-height:44px;text-align:left;padding:0 14px;border:0;border-radius:10px;background:transparent;font-size:15px}
 .helppop button:hover,.helppop button:focus-visible{background:var(--soft)}
 .addhead,.addnote,.drawhead,.drawonly{display:none}
-body.free .yt{display:none!important}
 .tbmore span{font-weight:500}
 body.simple .adds{display:none}
 body.simple.add-open .adds{display:grid;position:fixed;z-index:40;left:50%;top:50%;transform:translate(-50%,-50%);width:min(720px,calc(100vw - 24px));max-height:calc(100vh - 24px);overflow:auto;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:20px;border-radius:24px;background:var(--card2);border:1px solid var(--glassb);box-shadow:0 30px 70px rgb(0 0 0/.55)}
@@ -396,7 +391,6 @@ body.simple.add-open .addhead{display:flex;grid-column:1/-1;align-items:center;j
 .addhead strong{font:700 24px var(--fd)}
 body.simple.add-open .adds .k-file{grid-column:1/-1;min-height:120px;justify-content:center;flex-direction:column;border:2px dashed rgb(255 143 165/.6);background:rgb(255 90 122/.08);font-size:19px;font-weight:700}
 body.simple.add-open .adds>button,body.simple.add-open .adds>label:not(.k-file){min-height:64px;justify-content:center;font-size:16px;white-space:normal;text-align:center}
-body.simple.add-open .yt{grid-column:1/-1}
 body.simple.add-open .addnote{display:block;grid-column:1/-1;margin:4px 0 0;font-size:13px;color:var(--mut);line-height:1.55}
 .addback,.drawback{position:fixed;inset:0;z-index:39;background:rgb(0 0 0/.5)}
 body.simple .tb{grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:'ctl more now'}
@@ -435,6 +429,9 @@ body.simple .proonly,body.simple #tunebtn,body.simple #bpmhalf,body.simple #bpmd
 .linkbtn{border:0;background:none;padding:0;color:var(--accink);text-decoration:underline;font:inherit;cursor:pointer}
 .cgo{min-height:56px;font-size:18px}.cgo:disabled{opacity:.45;cursor:not-allowed}
 .docbody{font-size:15px;line-height:1.7;color:#d6dbe6}.docbody h3{font-size:16px;margin:14px 0 4px;color:var(--ink)}.docbody p{margin:0 0 8px}
+.lanqr{display:grid;justify-items:center;gap:8px;margin:10px 0}.lanqr svg{width:min(240px,70vw);height:auto;border-radius:12px;background:#fff}
+.lanqr input{width:100%;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--mut);font-size:13px}
+.docbody ol{margin:0 0 8px;padding-left:22px}.docbody li{margin:2px 0}
 .docbody table{width:100%;border-collapse:collapse;font-size:13.5px}.docbody td,.docbody th{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
 body.nosong #sheetcard>.ph,body.nosong .nowbar,body.nosong .prog{display:none!important}
 .welcome{display:grid;justify-items:center;gap:16px;text-align:center;padding:40px 16px}
@@ -585,7 +582,7 @@ body.stage-on .ihead,body.stage-on .ipill{font-size:calc(var(--stagefs) * .55)}
 <div class="stagebar" id="stagebar" role="toolbar" aria-label="โหมดเวที"></div>
 <header>
   <div><h1>Lyri<span>chord</span> <em class="edchip" id="edchip" hidden>Free</em></h1><p class="sub">แกะคอร์ด ทำนอง และเนื้อร้อง แล้วเล่นตามไปพร้อมเพลง <span class="ver" id="ver"></span></p></div>
-  <div style="display:flex;gap:8px;align-items:center;position:relative"><button class="hbtn pri" id="addbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>เพิ่มเพลง</span></button><button class="hbtn" id="libbtn2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 5h16M4 12h16M4 19h10"/></svg><span>คลังเพลง</span></button><button class="stbtn helpbtn" id="helpbtn" aria-label="วิธีใช้และข้อมูล" title="วิธีใช้และข้อมูล" aria-expanded="false">?</button><div class="helppop" id="helppop" hidden role="menu"><button role="menuitem" data-help="tour">วิธีใช้ (ทัวร์ 1 นาที)</button><button role="menuitem" data-help="terms">เงื่อนไขการใช้งานและลิขสิทธิ์</button><button role="menuitem" data-help="privacy">ความเป็นส่วนตัว</button><button role="menuitem" data-help="credits">เครดิตซอฟต์แวร์และไลเซนส์</button><button role="menuitem" data-help="about">เกี่ยวกับแอปนี้</button></div><div class="seg" id="langseg" role="group" aria-label="ภาษา"><button data-lang="th">ไทย</button><button data-lang="en">EN</button></div><button class="stbtn" id="stbtn" aria-expanded="false"><span class="dot" id="stdot"></span><span id="sttxt">กำลังตรวจสถานะ…</span></button></div>
+  <div style="display:flex;gap:8px;align-items:center;position:relative"><button class="hbtn pri" id="addbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>เพิ่มเพลง</span></button><button class="hbtn" id="libbtn2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 5h16M4 12h16M4 19h10"/></svg><span>คลังเพลง</span></button><button class="stbtn helpbtn" id="helpbtn" aria-label="วิธีใช้และข้อมูล" title="วิธีใช้และข้อมูล" aria-expanded="false">?</button><div class="helppop" id="helppop" hidden role="menu"><button role="menuitem" data-help="tour">วิธีใช้ (ทัวร์ 1 นาที)</button><button role="menuitem" data-help="lan" id="lanitem">ใช้บนมือถือ / iPad (Wi-Fi เดียวกัน)</button><button role="menuitem" data-help="terms">เงื่อนไขการใช้งานและลิขสิทธิ์</button><button role="menuitem" data-help="privacy">ความเป็นส่วนตัว</button><button role="menuitem" data-help="credits">เครดิตซอฟต์แวร์และไลเซนส์</button><button role="menuitem" data-help="about">เกี่ยวกับแอปนี้</button></div><div class="seg" id="langseg" role="group" aria-label="ภาษา"><button data-lang="th">ไทย</button><button data-lang="en">EN</button></div><button class="stbtn" id="stbtn" aria-expanded="false"><span class="dot" id="stdot"></span><span id="sttxt">กำลังตรวจสถานะ…</span></button></div>
 </header>
 <div class="stpop" id="stpop" hidden role="dialog" aria-label="สถานะการทำงาน"></div>
 
@@ -594,7 +591,6 @@ body.stage-on .ihead,body.stage-on .ipill{font-size:calc(var(--stagefs) * .55)}
   <div class="adds" id="adds" role="dialog" aria-label="เพิ่มเพลง">
     <div class="addhead"><strong>เพิ่มเพลง</strong><button class="zb" id="addclose" aria-label="ปิด">✕</button></div>
     <label class="k-file"><span class="dotk"></span>เลือกไฟล์เพลง<input id="file" type="file" accept="audio/*,video/mp4,video/webm"></label>
-    <form class="yt" id="ytform"><input id="yturl" type="url" inputmode="url" placeholder="วางลิงก์ YouTube…" aria-label="ลิงก์ YouTube"><button type="submit" id="ytbtn">แกะจาก YouTube <span class="nettag">ต้องใช้เน็ต</span></button></form>
     <button class="k-lib" id="libbtn" aria-expanded="false" hidden><span class="dotk"></span>คลังเพลง <b id="libn"></b></button>
     <button class="k-mic" id="addmic"><span class="dotk"></span>ไมค์ (สด · อัดเสียง)</button>
     <button class="k-tab" id="addtab"><span class="dotk"></span>เสียงจากแท็บ (สด)</button>
@@ -732,12 +728,13 @@ const LV_HINT = { very: 'พื้นฐาน: 1 คอร์ดต่อห้
 const ICON = {
   demo: '<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',
   file: '<path d="M14 3H6v18h12V7z"/><path d="M14 3v4h4"/>',
-  youtube: '<rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9l5 3-5 3z" fill="currentColor"/>',
   mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/>',
   tab: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/>',
   grow: '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>', shrink: '<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>' };
 const svgI = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">${ICON[k]}</svg>`;
-const KIND = { demo: 'ตัวอย่าง', file: 'ไฟล์', youtube: 'YouTube', mic: 'ไมค์', tab: 'แท็บ' };
+const KIND = { demo: 'ตัวอย่าง', file: 'ไฟล์', mic: 'ไมค์', tab: 'แท็บ' };
+const LINKED = '';  // no linked sources in Lyrichord Free
+
 const SHAPES = {
   '': [[-1,3,2,0,1,0],[-1,4,6,6,6,4],[-1,-1,0,2,3,2],[-1,6,8,8,8,6],[0,2,2,1,0,0],[1,3,3,2,1,1],[2,4,4,3,2,2],[3,2,0,0,0,3],[4,6,6,5,4,4],[-1,0,2,2,2,0],[-1,1,3,3,3,1],[-1,2,4,4,4,2]],
   m:  [[-1,3,5,5,4,3],[-1,4,6,6,5,4],[-1,-1,0,2,3,1],[-1,6,8,8,7,6],[0,2,2,0,0,0],[1,3,3,1,1,1],[2,4,4,2,2,2],[3,5,5,3,3,3],[4,6,6,4,4,4],[-1,0,2,2,1,0],[-1,1,3,3,2,1],[-1,2,4,4,3,2]]
@@ -748,7 +745,7 @@ const pick = (v, ok, d) => ok.includes(v) ? v : d;
 const thaiUser = () => { try { return (navigator.languages || [navigator.language]).some(l => /^th/i.test(l || '')) || /Bangkok/.test(Intl.DateTimeFormat().resolvedOptions().timeZone || ''); } catch (e) { return false; } };
 let LANG = pick(store.get('cl-lang'), ['th', 'en'], thaiUser() ? 'th' : 'en');
 const APP_VERSION = /*VERSION*/'dev';
-// 'free' = Lyrichord Free (given away: no YouTube download, simple mode first, consent on first use); set by build.py --edition
+// 'free' = Lyrichord Free (given away: files and live audio only, simple mode first, consent on first use); set by build.py --edition
 const EDITION = /*EDITION*/'full';
 const APP_NAME = EDITION === 'free' ? 'Lyrichord Free' : 'Lyrichord';
 const ONLINE_PAGE = /*ONLINE*/false; // true in the copy on Cloudflare (tools/make_pages.py)
@@ -924,7 +921,9 @@ const API = (() => {
   if (q.has('api') || q.has('key')) { q.delete('api'); q.delete('key'); history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '')); }
   // online page: keep the key in the address (after #) so "Add to Home Screen" saves it; on iPhone a home-screen
   // app does not share Safari's storage, so without this the icon would open without the key
-  if (ONLINE_PAGE && k && hk !== k) history.replaceState(null, '', location.pathname + location.search + '#key=' + encodeURIComponent(k));
+  // the same on another device of the Wi-Fi (the page opened at this computer's network address)
+  const remoteHost = !/^(localhost|127\.|\[::1\])/.test(location.hostname) && /^https?:/.test(location.protocol);
+  if ((ONLINE_PAGE || remoteHost) && k && hk !== k) history.replaceState(null, '', location.pathname + location.search + '#key=' + encodeURIComponent(k));
   return { base: (b || '').trim().replace(/\/+$/, ''), key: (k || '').trim() };
 })();
 function apiURL(path) {
@@ -969,8 +968,7 @@ async function poll(s, id, url) {
     let j;
     try { const r = await fetch(api('jobs/' + id)); j = await r.json(); if (!r.ok) throw new Error(j.detail); }
     catch (e) { return fail(s, (e && e.message) || 'ติดต่อหลังบ้านไม่ได้'); }
-    if (j.title && s.kind === 'youtube' && !/^YouTube /.test(j.title)) s.name = j.title;
-    if (j.status === 'done') { if (j.title && s.kind !== 'youtube' && s.fromLib) s.name = j.title; return finish(s, j.result, url || apiURL(j.audio_url), j.edits && Object.keys(j.edits).length ? j.edits : null); }
+    if (j.status === 'done') { if (j.title && s.kind === 'file' && s.fromLib) s.name = j.title; return finish(s, j.result, url || apiURL(j.audio_url), j.edits && Object.keys(j.edits).length ? j.edits : null); }
     if (j.status === 'error') return fail(s, j.error);
     progressOf(s, j.stage, j.progress);
     await new Promise(r => setTimeout(r, 900));
@@ -1016,25 +1014,6 @@ async function serverUpload(s, f, url) {
     await poll(s, j.id, url);
   } catch (e) { fail(s, (e && e.message) || 'ส่งไฟล์ไม่สำเร็จ'); }
 }
-async function addYoutube(link) {
-  link = link.trim();
-  const m = link.match(/^https?:\/\/(?:www\.|m\.|music\.)?(?:youtube\.com\/(?:watch\?v=|shorts\/|live\/)|youtu\.be\/)([\w-]{6,})/);
-  if (!m) { hint('ลิงก์นี้ไม่ใช่ลิงก์คลิป YouTube', true); return; }
-  if (!S.backend) { hint('การแกะจากลิงก์ YouTube ต้องเปิดแอปผ่านหลังบ้าน (http://localhost:8000) หรือใช้ปุ่ม "เสียงจากแท็บ" แทน', true); return; }
-  hint('');
-  const s = addSource('youtube', 'YouTube · ' + m[1], { server: true, vid: m[1] });
-  switchTo(s.id);
-  const go = async () => {
-    try {
-      const r = await fetch(api('jobs/youtube'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: link }) }), j = await r.json();
-      if (!r.ok) throw new Error(j.detail);
-      await poll(s, j.id, null);
-    } catch (e) { fail(s, (e && e.message) || 'ติดต่อหลังบ้านไม่ได้'); }
-  };
-  s.retry = () => { s.status = 'analyzing'; s.progress = 0; renderAll(); go(); };
-  progressOf(s, 'กำลังส่งลิงก์ไปหลังบ้าน', 0.01); go();
-  $('#yturl').value = '';
-}
 
 // ================= live: mic / tab =================
 function addLive(kind) {
@@ -1053,7 +1032,7 @@ async function startLive(s) {
   } catch (e) {
     hint(s.kind === 'mic'
       ? 'ใช้ไมค์ไม่ได้: ต้องเปิดแอปผ่าน http://localhost หรือ https:// แล้วกดอนุญาตไมค์ (ในหน้า claude.ai ใช้ไมค์ไม่ได้)'
-      : 'แชร์เสียงจากแท็บไม่ได้: ใช้ Chrome บนคอมพิวเตอร์ เลือกแท็บ YouTube และติ๊ก "แชร์เสียงในแท็บ"', true);
+      : 'แชร์เสียงจากแท็บไม่ได้: ใช้ Chrome บนคอมพิวเตอร์ เลือกแท็บที่เล่นเพลง และติ๊ก "แชร์เสียงในแท็บ"', true);
     s.status = 'stopped'; renderSources(); renderAll(); return;
   }
   if (!stream.getAudioTracks().length) { stream.getTracks().forEach(t => t.stop()); hint('ไม่มีเสียงมาด้วย ตอนเลือกแท็บให้ติ๊ก "แชร์เสียงในแท็บ"', true); return; }
@@ -1459,7 +1438,8 @@ $('#ed').addEventListener('click', e => {
 });
 
 // ================= song data, levels, saving =================
-function songKey(s) { if (s.kind === 'youtube') return 'yt:' + s.vid; if (s.kind === 'demo') return 'demo'; return 'f:' + s.name + '|' + Math.round(s.res.duration); }
+function songKey(s) {
+  if (s.kind === 'demo') return 'demo'; return 'f:' + s.name + '|' + Math.round(s.res.duration); }
 function finish(s, res, url, given) {
   if (s.dead) { if (url && url.startsWith('blob:')) URL.revokeObjectURL(url); return; }
   s.res = res; s.url = url; s.status = 'ready'; s.progress = 1;
@@ -2966,7 +2946,7 @@ const blobB64 = b => new Promise((ok, no) => { const r = new FileReader(); r.onl
 const b64Blob = (b64, type) => { const bin = atob(b64), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return new Blob([u], { type }); };
 async function songEntry(s, withAudio) {
   const res = { ...s.res }; delete res.lyrics_pending;
-  const e = { name: s.name, kind: s.kind === 'youtube' ? 'youtube' : 'file', vid: s.vid || null, res, saved: savedData(s), audio: null };
+  const e = { name: s.name, kind: s.kind === LINKED ? LINKED : 'file', vid: s.vid || null, res, saved: savedData(s), audio: null };
   if (withAudio && s.url) { try { const b = await (await fetch(s.url)).blob(); e.audio = { type: b.type || 'audio/mpeg', b64: await blobB64(b) }; } catch (err) { console.error(err); } }
   return e;
 }
@@ -2990,7 +2970,7 @@ async function importSet(f) {
     let url = null;
     if (e.audio && e.audio.b64) { try { url = URL.createObjectURL(b64Blob(e.audio.b64, e.audio.type || 'audio/mpeg')); } catch {} }
     if (!url) noAudio++;
-    const s = addSource(e.kind === 'youtube' && e.vid ? 'youtube' : 'file', String(e.name || T('เพลง')), { vid: e.vid || undefined, imported: true });
+    const s = addSource(e.kind === LINKED && e.vid ? LINKED : 'file', String(e.name || T('เพลง')), { vid: e.vid || undefined, imported: true });
     if (!n) switchTo(s.id);
     finish(s, r, url, e.saved && typeof e.saved === 'object' ? e.saved : null); save(s); n++;
   }
@@ -3031,12 +3011,12 @@ function renderLibrary() {
   if (S.libTab === 'sets') { renderSets(); return; }
   const q = (S.libQ || '').trim().toLowerCase(), open = new Set(S.sources.filter(s => s.jobId).map(s => s.jobId));
   const rows = S.lib.filter(x => !q || (x.title || '').toLowerCase().includes(q));
-  $('#liblist').innerHTML = !S.lib.length ? `<p class="hint">${T('ยังไม่มีเพลงในคลัง: เพลงที่แกะจากไฟล์หรือ YouTube จะถูกเก็บไว้ที่นี่เอง พร้อมทุกอย่างที่แก้')}</p>`
+  $('#liblist').innerHTML = !S.lib.length ? `<p class="hint">${T('ยังไม่มีเพลงในคลัง: เพลงที่แกะแล้วจะถูกเก็บไว้ที่นี่เอง พร้อมทุกอย่างที่แก้')}</p>`
     : !rows.length ? `<p class="hint">${T('ไม่พบเพลงที่ค้นหา')}</p>`
     : rows.map(x => {
       const key = x.key ? MA.name({ root: x.key.root, q: x.key.q, bass: -1 }) : '—';
       const tags = [x.edited ? `<span class="ltag e">${T('แก้ไว้')}</span>` : '', x.lyrics ? `<span class="ltag">${T('มีเนื้อร้อง')}</span>` : '', open.has(x.id) ? `<span class="ltag o">${T('เปิดไว้แล้ว')}</span>` : ''].join('');
-      return `<div class="lrow" data-lib="${esc(x.id)}"><span class="ic k-${x.kind === 'youtube' ? 'youtube' : 'file'}">${svgI(x.kind === 'youtube' ? 'youtube' : 'file')}</span>
+      return `<div class="lrow" data-lib="${esc(x.id)}"><span class="ic k-${x.kind === LINKED ? LINKED : 'file'}">${svgI(x.kind === LINKED ? LINKED : 'file')}</span>
         <div class="lmain"><b title="${esc(x.title)}">${esc(x.title)}</b><small>${T('คีย์')} ${key} · ${fmt(x.duration)} · ${x.bpm || '—'} BPM · ${when(x.updated)}</small><span class="ltags">${tags}</span></div>
         <div class="lacts"><button class="sbtn sm pri" data-la="open">${open.has(x.id) ? T('ไปที่เพลง') : T('เปิด')}</button><button class="zb" data-la="ren" aria-label="${T('เปลี่ยนชื่อ')}" title="${T('เปลี่ยนชื่อ')}">✎</button><button class="zb" data-la="del" aria-label="${T('ลบจากคลัง')}" title="${T('ลบจากคลัง')}">🗑</button></div></div>`;
     }).join('');
@@ -3044,7 +3024,7 @@ function renderLibrary() {
 function openLib(id) {
   const ex = S.sources.find(s => s.jobId === id); if (ex) { switchTo(ex.id); return; }
   const x = (S.lib || []).find(v => v.id === id) || { title: id, kind: 'upload' };
-  const s = addSource(x.kind === 'youtube' ? 'youtube' : 'file', x.title, { server: true, vid: x.vid || undefined, fromLib: true });
+  const s = addSource(x.kind === LINKED ? LINKED : 'file', x.title, { server: true, vid: x.vid || undefined, fromLib: true });
   switchTo(s.id); progressOf(s, 'กำลังเปิดจากคลังเพลง', 0.5);
   poll(s, id, null);
 }
@@ -3225,7 +3205,7 @@ addEventListener('keydown', e => {
 
 // ================= first-time guide: five short steps on the real screen (Thai / English) =================
 const TOUR = [
-  { sel: '#addbtn', title: 'เริ่มจากเพิ่มเพลง', text: 'เลือกไฟล์เพลง วางลิงก์ YouTube หรือเปิดเพลงที่เคยแกะไว้จาก "คลังเพลง" แอปจะแกะคอร์ด คีย์ ทำนอง และเนื้อร้องให้' },
+  { sel: '#addbtn', title: 'เริ่มจากเพิ่มเพลง', text: 'เลือกไฟล์เพลง หรือเปิดเพลงที่เคยแกะไว้จาก "คลังเพลง" แอปจะแกะคอร์ด คีย์ ทำนอง และเนื้อร้องให้' },
   { sel: '#sheetcard', title: 'แผ่นโน้ตของคุณ', text: 'แตะคอร์ดเพื่อแก้ แตะสองครั้งที่เนื้อร้องเพื่อแก้ ลากคอร์ดไปวางที่อื่นได้ ทุกอย่างบันทึกเองและเปิดต่อได้จากทุกเครื่อง' },
   { sel: '.tb', title: 'ปรับให้เหมาะกับคุณ', text: 'เลือกระดับคอร์ด พื้นฐาน / มาตรฐาน / ละเอียด เปลี่ยนคีย์ด้วย − และ + เลือกรูปคอร์ดเปียโนหรือกีตาร์ (กีตาร์มีแนะนำคาโป้) คอร์ดที่กำลังเล่นอยู่มุมขวาบน' },
   { sel: '.bottom', title: 'เล่นตามเพลง', text: 'กดเล่น แล้วดูคอร์ด เนื้อร้อง และทำนองเลื่อนตามจังหวะ ฝึกช้าลงด้วย 50% หรือ 75% และกด "วนแถวนี้" เพื่อซ้อมท่อนเดิม' },
@@ -3470,6 +3450,21 @@ function docHTML(kind) {
     <p>${T('แกะคอร์ด คีย์ ทำนอง และเนื้อร้องจากไฟล์เพลง แล้วเล่นตาม ซ้อม ขึ้นเวที และส่งออกได้ ทำงานในเครื่องของคุณ')}</p>
     <p>${T('แจกฟรีและเปิดซอร์สโค้ด (MIT) เพื่อเป็นประโยชน์กับพี่น้องและทุกคนที่รักดนตรี')}</p>`];
 }
+// ---- Wi-Fi mode: phones and tablets on the same network open this app (works without internet) ----
+async function openLan() {
+  $('#docTitle').textContent = T('ใช้บนมือถือ / iPad (Wi-Fi เดียวกัน)'); $('#docbody').innerHTML = `<p>${T('กำลังโหลด…')}</p>`; $('#docdlg').hidden = false;
+  let j = null; try { const r = await fetch(api('lan')); j = r.ok ? await r.json() : null; } catch {}
+  const steps = `<ol><li>${T('ให้มือถือหรือ iPad ต่อ Wi-Fi เดียวกับคอมเครื่องนี้ (Wi-Fi ในโบสถ์ หรือฮอตสปอตจากมือถือก็ได้ ไม่ต้องมีอินเทอร์เน็ต)')}</li>
+    <li>${T('สแกน QR ด้วยกล้อง แล้วเปิดลิงก์ (iPhone: Safari · Android: Chrome)')}</li>
+    <li>${T('ใช้ได้ตราบที่แอปบนคอมเปิดอยู่ เพิ่มไปยังหน้าจอโฮมไว้เปิดครั้งต่อไปได้')}</li></ol>`;
+  let body;
+  if (!j) body = `<p>${T('เปิดหน้านี้จากแอปบนคอมพิวเตอร์ (ปุ่มในหน้าต่าง Lyrichord) เพื่อดู QR')}</p>`;
+  else if (!j.on) body = `<p>${T('โหมด Wi-Fi ปิดอยู่ (รุ่นนี้รับเฉพาะเครื่องนี้)')}</p>`;
+  else if (!j.link) body = `<p>${T('ยังไม่ได้ต่อ Wi-Fi หรือเครือข่ายใด: ต่อ Wi-Fi หรือเปิดฮอตสปอตจากมือถือแล้วต่อคอมเข้าไป จากนั้นเปิดหน้านี้ใหม่')}</p>${steps}`;
+  else body = `${steps}<div class="lanqr">${j.qr}<input readonly value="${esc(j.link)}" onclick="this.select()" aria-label="${T('ลิงก์สำหรับมือถือ')}"></div>
+    <p class="hint">${T('ลิงก์มีรหัสเข้าใช้ อย่าส่งต่อให้คนนอกวง · ครั้งแรกคอมอาจถามว่าให้รับการเชื่อมต่อไหม ให้กดอนุญาต (Allow) · ผ่าน Wi-Fi แบบนี้ มือถือจะใช้ไมค์อัดเสียงไม่ได้ ส่วนอื่นใช้ได้ครบ')}</p>`;
+  $('#docbody').innerHTML = body; $('#docclose').focus();
+}
 function openDoc(kind) {
   const [title, body] = docHTML(kind);
   $('#docTitle').textContent = title; $('#docbody').innerHTML = body; $('#docdlg').hidden = false; $('#docclose').focus();
@@ -3493,6 +3488,7 @@ $('#clang').addEventListener('click', e => { const b = e.target.closest('[data-l
 // ---- wiring ----
 $('#addbtn').addEventListener('click', () => { if (S.pro) { $('#adds').scrollIntoView({ block: 'center', behavior: 'smooth' }); $('#file').click(); } else openAdd(); });
 $('#libbtn2').addEventListener('click', () => { S.libOpen = !S.libOpen; store.set('cl-libopen', S.libOpen ? '1' : '0'); if (S.libOpen) loadLibrary(); else renderLibrary(); });
+$('#lanitem').hidden = !/^(localhost|127\.|\[::1\])/.test(location.hostname);  // already on a phone
 $('#addclose').addEventListener('click', closeAdd);
 $('#addback').addEventListener('click', closeAdd);
 // choosing a way in closes the window (the file picker opens on top of it)
@@ -3506,7 +3502,7 @@ $('#prochk').addEventListener('change', e => setPro(e.target.checked));
 $('#helpbtn').addEventListener('click', e => { e.stopPropagation(); const p = $('#helppop'); p.hidden = !p.hidden; $('#helpbtn').setAttribute('aria-expanded', !p.hidden); });
 document.addEventListener('click', e => {
   const h = e.target.closest('[data-help]');
-  if (h) { e.preventDefault(); $('#helppop').hidden = true; $('#helpbtn').setAttribute('aria-expanded', false); if (h.dataset.help === 'tour') startTour(); else openDoc(h.dataset.help); return; }
+  if (h) { e.preventDefault(); $('#helppop').hidden = true; $('#helpbtn').setAttribute('aria-expanded', false); if (h.dataset.help === 'tour') startTour(); else if (h.dataset.help === 'lan') openLan(); else openDoc(h.dataset.help); return; }
   if (!e.target.closest('#helppop,#helpbtn')) { $('#helppop').hidden = true; $('#helpbtn').setAttribute('aria-expanded', false); }
 });
 $('#docclose').addEventListener('click', () => { $('#docdlg').hidden = true; });
@@ -3588,7 +3584,6 @@ function features() {
     ['ส่งออก PDF', 'off', 'สร้างในเครื่อง'],
     ['ส่งออก PowerPoint', S.pptLocal ? 'off' : on ? 'net' : 'no', S.pptLocal ? 'ตัวสร้างอยู่ในแอป' : 'โหลดตัวสร้างจากเน็ตครั้งแรก'],
     ['ไมค์ / เสียงจากแท็บ (สด)', window.isSecureContext && navigator.mediaDevices ? 'off' : 'no', window.isSecureContext ? 'ประมวลผลในเครื่อง' : 'ต้องเปิดผ่าน http://localhost หรือ https'],
-    ['แกะจากลิงก์ YouTube', !h ? 'no' : on ? 'net' : 'no', !h ? 'ต้องเปิดผ่านหลังบ้าน' : on ? 'ต้องใช้เน็ต (เชื่อมต่ออยู่)' : 'ตอนนี้ออฟไลน์'],
   ];
 }
 function renderStatus() {
@@ -3603,7 +3598,6 @@ function renderStatus() {
     `<input id="apiurl" type="url" placeholder="https://xxxx.trycloudflare.com" value="${esc(API.base)}"><input id="apikey" placeholder="${'รหัสเข้าใช้'}" value="${esc(API.key)}">` +
     `<div class="row"><button class="btn" id="apiset">${'เชื่อมต่อ'}</button>${API.base ? `<button class="btn" id="apiclr">${'เลิกเชื่อมต่อ'}</button>` : ''}</div></div>` +
     (S.online && S.online.link ? `<div class="stqr"><strong>${'ใช้บน iPhone / iPad'}</strong><p class="hint">${'สแกน QR ด้วยกล้อง แล้วแตะลิงก์ที่ขึ้นมา (เปิดใน Safari) ต่อหลังบ้าน AI ของคอมเครื่องนี้ได้ทันที'}</p>${S.online.qr}<input readonly value="${esc(S.online.link)}" onclick="this.select()"></div>` : '');
-  const yb = $('#ytbtn'); yb.disabled = !on; yb.title = on ? '' : 'ต้องต่ออินเทอร์เน็ต';
 }
 // start-online is running on this computer: show the QR code for phones / tablets
 async function loadOnline() {
@@ -3756,7 +3750,6 @@ $('#stagebtn').addEventListener('click', () => startStage(null));
 $('#helpbtn').addEventListener('click', () => startTour());
 $('#libq').addEventListener('input', e => { S.libQ = e.target.value; renderLibrary(); });
 $('#liblist').addEventListener('click', libAction);
-$('#ytform').addEventListener('submit', e => { e.preventDefault(); addYoutube($('#yturl').value); });
 $('#adddemo').addEventListener('click', () => { const d = S.sources.find(s => s.kind === 'demo'); if (d) switchTo(d.id); else addDemo(); });
 $('#addmic').addEventListener('click', () => addLive('mic'));
 $('#addtab').addEventListener('click', () => addLive('tab'));
@@ -3821,7 +3814,7 @@ if (EDITION !== 'free') addDemo(); else renderAll();
 $('#ver').textContent = 'v' + APP_VERSION;
 checkBackend().then(async h => {
   S.backend = h;
-  if (h && h.edition === 'free') document.body.classList.add('free');  // a free backend has no YouTube, whatever page it serves
+  if (h && h.edition === 'free') document.body.classList.add('free');  // a free backend: the free look, whatever page it serves
   // a page and a server from different versions: say so plainly (usually an old app still installed or running)
   if (h && h.version !== APP_VERSION) {
     const w = document.createElement('p'); w.className = 'verwarn'; w.id = 'verwarn';
@@ -3832,6 +3825,7 @@ checkBackend().then(async h => {
   renderStatus();
   loadLibrary();
   await loadOnline();
+  if (new URLSearchParams(location.search).has('showlan')) openLan();
   if (new URLSearchParams(location.search).has('showqr') && S.online) { const p = $('#stpop'); p.hidden = false; const r = $('#stbtn').getBoundingClientRect(); p.style.top = (r.bottom + scrollY) + 'px'; }
   if (S.backendErr === 'key') hint('หลังบ้านออนไลน์: รหัสเข้าใช้ไม่ถูกต้อง แก้ได้ที่ปุ่มสถานะมุมขวาบน', true);
   else if (S.backendErr === 'nomac' || (S.backendErr === 'down' && ONLINE_PAGE && S.macFound === false)) hint('ยังติดต่อ Mac ที่บ้านไม่ได้: เปิดแอป Lyrichord บน Mac ไว้ (ต้องติดตั้ง cloudflared) แล้วรีโหลดหน้านี้ ระหว่างนี้ใช้แบบแกะในเครื่องนี้ไปก่อน', true);

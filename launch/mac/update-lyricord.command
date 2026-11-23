@@ -14,5 +14,5 @@ docker stop lyricord >/dev/null 2>&1; docker rm lyricord >/dev/null 2>&1; docker
 ids=$(docker ps -q --filter "publish=8000"); [ -n "$ids" ] && docker stop $ids >/dev/null
 if ! docker build -t lyricord .; then echo; echo "BUILD FAILED. Take a screenshot of the red lines above and send it to Claude."; pause; exit 1; fi
 docker rmi chord-app >/dev/null 2>&1
-echo "Build finished. After this the app works without internet (except YouTube links)."
+echo "Build finished. After this the app works without internet."
 bash "$SCRIPTDIR/start-lyricord.command"

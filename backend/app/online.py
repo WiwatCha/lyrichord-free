@@ -37,6 +37,35 @@ def info() -> dict:
     return {"url": url, "pages": pages, "key": k, "link": link}
 
 
+def lan_ips() -> list[str]:
+    """This computer's private IPv4 addresses (Wi-Fi / Ethernet / a phone hotspot), the main one first.
+    No packet is sent: connecting a UDP socket only asks the system which interface it would use."""
+    import ipaddress
+    import socket
+
+    found = []
+    for probe in ("10.255.255.255", "192.168.255.255", "172.31.255.255"):
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+                s.connect((probe, 9))
+                found.append(s.getsockname()[0])
+        except OSError:
+            pass
+    try:
+        found += socket.gethostbyname_ex(socket.gethostname())[2]
+    except OSError:
+        pass
+    out = []
+    for ip in found:
+        try:
+            a = ipaddress.ip_address(ip)
+        except ValueError:
+            continue
+        if a.version == 4 and a.is_private and not a.is_loopback and not a.is_link_local and ip not in out:
+            out.append(ip)
+    return out
+
+
 def save(url: str, pages: str = "") -> None:
     DATA.mkdir(parents=True, exist_ok=True)
     FILE.write_text(json.dumps({"url": url, "pages": pages}), "utf-8")

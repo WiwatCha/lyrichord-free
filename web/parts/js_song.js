@@ -1,5 +1,6 @@
 // ================= song data, levels, saving =================
-function songKey(s) { if (s.kind === 'youtube') return 'yt:' + s.vid; if (s.kind === 'demo') return 'demo'; return 'f:' + s.name + '|' + Math.round(s.res.duration); }
+function songKey(s) {
+  if (s.kind === 'demo') return 'demo'; return 'f:' + s.name + '|' + Math.round(s.res.duration); }
 function finish(s, res, url, given) {
   if (s.dead) { if (url && url.startsWith('blob:')) URL.revokeObjectURL(url); return; }
   s.res = res; s.url = url; s.status = 'ready'; s.progress = 1;

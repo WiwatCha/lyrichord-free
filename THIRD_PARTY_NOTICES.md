@@ -16,7 +16,8 @@ Thank you to everyone who made them.
 | Whisper small (OpenAI) via faster-whisper (SYSTRAN) | lyrics | MIT | https://github.com/openai/whisper · https://github.com/SYSTRAN/faster-whisper |
 | PaddleOCR PP-OCRv5 (Baidu) | reading lyrics / chords from pictures | Apache-2.0 | https://github.com/PaddlePaddle/PaddleOCR |
 
-**Not in Lyrichord Free:** the UVR DeEcho-DeReverb model (its licence is not stated clearly) and YouTube download (yt-dlp is not used, because of YouTube's terms of service).
+
+**Not in Lyrichord Free:** the UVR DeEcho-DeReverb model (its licence is not stated clearly).
 
 ## Libraries
 

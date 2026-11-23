@@ -26,7 +26,8 @@ How to install, and why your computer shows a warning: **[docs/INSTALL-free.md](
 - **โหมดเวที + เซ็ตเพลง**: ตัวใหญ่ เลื่อนหน้าด้วยแป้นเหยียบ Bluetooth จบเพลงแล้วไปเพลงถัดไปเอง
 - **คลังเพลง** เก็บเพลงที่แกะแล้วพร้อมทุกอย่างที่แก้
 - **ส่งออก** PDF, PowerPoint (แก้ต่อได้), MusicXML (MuseScore), MIDI
-- ภาษาไทย / English · คอม iPad และมือถือ
+- **ใช้บนมือถือ / iPad / Android** ผ่าน Wi-Fi วงเดียวกัน (สแกน QR ไม่ต้องใช้อินเทอร์เน็ต)
+- ภาษาไทย / English
 
 - **Analyse** a song file, the microphone or a browser tab: chords on every beat, key, BPM, bars, melody, and timed lyrics (the sheet first in ~30–40 s, the words follow)
 - **Three chord levels**, Roman numerals, transpose, **capo suggestions** for guitar, piano / guitar shapes
@@ -35,6 +36,7 @@ How to install, and why your computer shows a warning: **[docs/INSTALL-free.md](
 - **Stage mode and setlists**: big text, page turns with a Bluetooth pedal, the next song comes up by itself
 - **Library** of every song you analysed, with your edits
 - **Export** PDF, PowerPoint (editable), MusicXML (MuseScore), MIDI
+- **Phones, iPad and Android** on the same Wi-Fi: scan a QR code, no internet needed
 
 ## ความเป็นส่วนตัวและลิขสิทธิ์ · Privacy and copyright
 

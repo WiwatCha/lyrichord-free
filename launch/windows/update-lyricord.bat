@@ -25,5 +25,5 @@ if errorlevel 1 (
   exit /b 1
 )
 docker rmi chord-app >nul 2>&1
-echo Build finished. After this the app works without internet (except YouTube links).
+echo Build finished. After this the app works without internet.
 call "%~dp0start-lyricord.bat"

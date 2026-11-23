@@ -59,17 +59,13 @@ h1 span{color:var(--acc)}
 .strow small{grid-column:1 / -1;color:var(--mut);font-size:12px}
 .badge2{font-size:12px;padding:2px 9px;border-radius:999px;white-space:nowrap;font-weight:500}
 .b-off{background:rgb(61 220 151/.15);color:var(--ok)}.b-net{background:rgb(90 169 255/.15);color:var(--net)}.b-no{background:var(--soft);color:var(--dim)}
-.k-demo{--k:#8b7bff}.k-file{--k:#4c8dff}.k-youtube{--k:#ff4d4d}.k-mic{--k:#ff5a7a}.k-tab{--k:#ff9a3c}
+.k-demo{--k:#8b7bff}.k-file{--k:#4c8dff}.k-mic{--k:#ff5a7a}.k-tab{--k:#ff9a3c}
 .rack{margin:10px 0 10px;display:grid;gap:8px}
 .adds{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .adds button,.adds label{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);font-weight:500;cursor:pointer;white-space:nowrap}
 .adds button:hover,.adds label:hover{border-color:var(--k,var(--mut))}
 .dotk{width:10px;height:10px;border-radius:3px;background:var(--k);flex:none}
 .adds input[type=file]{position:absolute;opacity:0;width:1px;height:1px}
-.yt{display:flex;gap:8px;flex:1 1 360px}
-.yt input{flex:1;min-height:44px;border-radius:12px;border:1px solid var(--line);background:var(--card);padding:0 14px;font-size:16px}
-.yt button{min-height:44px;padding:0 14px;border-radius:12px;border:0;background:#ff4d4d;color:#fff;font-weight:700;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
-.yt button:disabled{background:var(--soft);color:var(--dim);cursor:not-allowed}
 .nettag{font-size:11px;font-weight:500;padding:1px 6px;border-radius:6px;background:rgb(0 0 0/.25)}
 .hint{font-size:13px;color:var(--mut);margin:0}
 .hint.err{color:var(--accink)}
@@ -299,7 +295,7 @@ body.d-hide .fig{display:none}
 @media(max-width:1560px){.tb .lb{display:none}}
 @media(max-width:900px){.stage{grid-template-columns:minmax(0,1fr)}.now{position:static;max-height:none;overflow:visible}body.v-now .nowg{grid-template-columns:minmax(0,1fr);grid-template-areas:'ban' 'big' 'dots' 'next' 'lyr' 'diag' 'mel'}}
 @media(max-width:700px){.le{grid-template-columns:minmax(0,1fr) auto auto}.tb{position:static}.bars{grid-template-columns:repeat(2,minmax(0,1fr))}.big{height:110px;font-size:54px}.liveg{grid-template-columns:minmax(0,1fr)}.le{grid-template-columns:auto minmax(0,1fr) auto}.le .tm{grid-column:1 / -1}}
-@media(max-width:520px){#dockhint{display:none}.adds button,.adds label{padding:0 12px;font-size:15px}.src{width:200px}.yt{flex-basis:100%}.cg{height:52px}.chip{font-size:19px}.tb .lb{display:none}.ct{font-size:21px}.cc{font-size:17px}}
+@media(max-width:520px){#dockhint{display:none}.adds button,.adds label{padding:0 12px;font-size:15px}.src{width:200px}.cg{height:52px}.chip{font-size:19px}.tb .lb{display:none}.ct{font-size:21px}.cc{font-size:17px}}
 .keyrel{font-size:12px;color:var(--mut);margin-left:6px;font-weight:400}
 
 /* round B: quick chord choices, inline lyric editor, drag and drop */
@@ -388,7 +384,6 @@ body.lay-lr.d-hide .vsplit{pointer-events:none}body.lay-lr.d-hide .vsplit i{visi
 .helppop button{min-height:44px;text-align:left;padding:0 14px;border:0;border-radius:10px;background:transparent;font-size:15px}
 .helppop button:hover,.helppop button:focus-visible{background:var(--soft)}
 .addhead,.addnote,.drawhead,.drawonly{display:none}
-body.free .yt{display:none!important}
 .tbmore span{font-weight:500}
 body.simple .adds{display:none}
 body.simple.add-open .adds{display:grid;position:fixed;z-index:40;left:50%;top:50%;transform:translate(-50%,-50%);width:min(720px,calc(100vw - 24px));max-height:calc(100vh - 24px);overflow:auto;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:20px;border-radius:24px;background:var(--card2);border:1px solid var(--glassb);box-shadow:0 30px 70px rgb(0 0 0/.55)}
@@ -396,7 +391,6 @@ body.simple.add-open .addhead{display:flex;grid-column:1/-1;align-items:center;j
 .addhead strong{font:700 24px var(--fd)}
 body.simple.add-open .adds .k-file{grid-column:1/-1;min-height:120px;justify-content:center;flex-direction:column;border:2px dashed rgb(255 143 165/.6);background:rgb(255 90 122/.08);font-size:19px;font-weight:700}
 body.simple.add-open .adds>button,body.simple.add-open .adds>label:not(.k-file){min-height:64px;justify-content:center;font-size:16px;white-space:normal;text-align:center}
-body.simple.add-open .yt{grid-column:1/-1}
 body.simple.add-open .addnote{display:block;grid-column:1/-1;margin:4px 0 0;font-size:13px;color:var(--mut);line-height:1.55}
 .addback,.drawback{position:fixed;inset:0;z-index:39;background:rgb(0 0 0/.5)}
 body.simple .tb{grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:'ctl more now'}
@@ -435,6 +429,9 @@ body.simple .proonly,body.simple #tunebtn,body.simple #bpmhalf,body.simple #bpmd
 .linkbtn{border:0;background:none;padding:0;color:var(--accink);text-decoration:underline;font:inherit;cursor:pointer}
 .cgo{min-height:56px;font-size:18px}.cgo:disabled{opacity:.45;cursor:not-allowed}
 .docbody{font-size:15px;line-height:1.7;color:#d6dbe6}.docbody h3{font-size:16px;margin:14px 0 4px;color:var(--ink)}.docbody p{margin:0 0 8px}
+.lanqr{display:grid;justify-items:center;gap:8px;margin:10px 0}.lanqr svg{width:min(240px,70vw);height:auto;border-radius:12px;background:#fff}
+.lanqr input{width:100%;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--mut);font-size:13px}
+.docbody ol{margin:0 0 8px;padding-left:22px}.docbody li{margin:2px 0}
 .docbody table{width:100%;border-collapse:collapse;font-size:13.5px}.docbody td,.docbody th{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
 body.nosong #sheetcard>.ph,body.nosong .nowbar,body.nosong .prog{display:none!important}
 .welcome{display:grid;justify-items:center;gap:16px;text-align:center;padding:40px 16px}
@@ -585,7 +582,7 @@ body.stage-on .ihead,body.stage-on .ipill{font-size:calc(var(--stagefs) * .55)}
 <div class="stagebar" id="stagebar" role="toolbar" aria-label="โหมดเวที"></div>
 <header>
   <div><h1>Lyri<span>chord</span> <em class="edchip" id="edchip" hidden>Free</em></h1><p class="sub">แกะคอร์ด ทำนอง และเนื้อร้อง แล้วเล่นตามไปพร้อมเพลง <span class="ver" id="ver"></span></p></div>
-  <div style="display:flex;gap:8px;align-items:center;position:relative"><button class="hbtn pri" id="addbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>เพิ่มเพลง</span></button><button class="hbtn" id="libbtn2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 5h16M4 12h16M4 19h10"/></svg><span>คลังเพลง</span></button><button class="stbtn helpbtn" id="helpbtn" aria-label="วิธีใช้และข้อมูล" title="วิธีใช้และข้อมูล" aria-expanded="false">?</button><div class="helppop" id="helppop" hidden role="menu"><button role="menuitem" data-help="tour">วิธีใช้ (ทัวร์ 1 นาที)</button><button role="menuitem" data-help="terms">เงื่อนไขการใช้งานและลิขสิทธิ์</button><button role="menuitem" data-help="privacy">ความเป็นส่วนตัว</button><button role="menuitem" data-help="credits">เครดิตซอฟต์แวร์และไลเซนส์</button><button role="menuitem" data-help="about">เกี่ยวกับแอปนี้</button></div><div class="seg" id="langseg" role="group" aria-label="ภาษา"><button data-lang="th">ไทย</button><button data-lang="en">EN</button></div><button class="stbtn" id="stbtn" aria-expanded="false"><span class="dot" id="stdot"></span><span id="sttxt">กำลังตรวจสถานะ…</span></button></div>
+  <div style="display:flex;gap:8px;align-items:center;position:relative"><button class="hbtn pri" id="addbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>เพิ่มเพลง</span></button><button class="hbtn" id="libbtn2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 5h16M4 12h16M4 19h10"/></svg><span>คลังเพลง</span></button><button class="stbtn helpbtn" id="helpbtn" aria-label="วิธีใช้และข้อมูล" title="วิธีใช้และข้อมูล" aria-expanded="false">?</button><div class="helppop" id="helppop" hidden role="menu"><button role="menuitem" data-help="tour">วิธีใช้ (ทัวร์ 1 นาที)</button><button role="menuitem" data-help="lan" id="lanitem">ใช้บนมือถือ / iPad (Wi-Fi เดียวกัน)</button><button role="menuitem" data-help="terms">เงื่อนไขการใช้งานและลิขสิทธิ์</button><button role="menuitem" data-help="privacy">ความเป็นส่วนตัว</button><button role="menuitem" data-help="credits">เครดิตซอฟต์แวร์และไลเซนส์</button><button role="menuitem" data-help="about">เกี่ยวกับแอปนี้</button></div><div class="seg" id="langseg" role="group" aria-label="ภาษา"><button data-lang="th">ไทย</button><button data-lang="en">EN</button></div><button class="stbtn" id="stbtn" aria-expanded="false"><span class="dot" id="stdot"></span><span id="sttxt">กำลังตรวจสถานะ…</span></button></div>
 </header>
 <div class="stpop" id="stpop" hidden role="dialog" aria-label="สถานะการทำงาน"></div>
 
@@ -594,7 +591,6 @@ body.stage-on .ihead,body.stage-on .ipill{font-size:calc(var(--stagefs) * .55)}
   <div class="adds" id="adds" role="dialog" aria-label="เพิ่มเพลง">
     <div class="addhead"><strong>เพิ่มเพลง</strong><button class="zb" id="addclose" aria-label="ปิด">✕</button></div>
     <label class="k-file"><span class="dotk"></span>เลือกไฟล์เพลง<input id="file" type="file" accept="audio/*,video/mp4,video/webm"></label>
-    <form class="yt" id="ytform"><input id="yturl" type="url" inputmode="url" placeholder="วางลิงก์ YouTube…" aria-label="ลิงก์ YouTube"><button type="submit" id="ytbtn">แกะจาก YouTube <span class="nettag">ต้องใช้เน็ต</span></button></form>
     <button class="k-lib" id="libbtn" aria-expanded="false" hidden><span class="dotk"></span>คลังเพลง <b id="libn"></b></button>
     <button class="k-mic" id="addmic"><span class="dotk"></span>ไมค์ (สด · อัดเสียง)</button>
     <button class="k-tab" id="addtab"><span class="dotk"></span>เสียงจากแท็บ (สด)</button>

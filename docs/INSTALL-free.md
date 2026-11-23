@@ -40,6 +40,14 @@ Lyrichord Free เป็นโครงการแจกฟรี จึงย�
 - ครั้งแรกจะมีข้อตกลงสั้นๆ 3 ข้อ และคำแนะนำ 5 ขั้น
 - กด **+ เพิ่มเพลง** แล้วเลือกไฟล์เพลง (mp3, m4a, wav)
 
+## ใช้บนมือถือ / iPad / Android (Wi-Fi เดียวกัน ไม่ต้องใช้อินเทอร์เน็ต)
+1. เปิดแอปบนคอม ให้มือถือต่อ Wi-Fi วงเดียวกับคอม (ใช้เราเตอร์ที่บ้าน/โบสถ์ หรือเปิดฮอตสปอตจากมือถือแล้วให้คอมต่อก็ได้ ไม่ต้องมีเน็ต)
+2. กดปุ่ม **ใช้บนมือถือ / iPad** ในหน้าต่างแอป (หรือเมนู **?** ในหน้าแอป) จะมี QR ขึ้นมา
+3. สแกน QR ด้วยกล้องมือถือ (iPhone: Safari · Android: Chrome) แล้ว "เพิ่มไปยังหน้าจอโฮม" ไว้เปิดครั้งต่อไป
+- ครั้งแรกบน Windows จะถามเรื่องไฟร์วอลล์: กด **Allow** (เครือข่ายส่วนตัว) · Mac อาจถามว่าให้รับการเชื่อมต่อไหม: กด **อนุญาต**
+- ลิงก์มีรหัสเข้าใช้ของเครื่องคุณ คนที่ไม่มีรหัสเปิดไม่ได้ อย่าส่งลิงก์ให้คนที่ไม่รู้จัก
+- คอมต้องเปิดแอปไว้ระหว่างใช้ · ผ่าน Wi-Fi แบบนี้ iPhone อัดเสียงจากไมค์และกันจอดับไม่ได้ (ข้อจำกัดของเบราว์เซอร์) ใช้ไฟล์เพลงแทน
+
 ## ความเป็นส่วนตัวและลิขสิทธิ์
 - เพลงและทุกอย่างที่คุณแก้ อยู่ในเครื่องของคุณเท่านั้น แอปไม่มีบัญชีผู้ใช้ ไม่เก็บสถิติ ไม่มีโฆษณา
 - ใช้กับเพลงที่คุณมีสิทธิ์ใช้ อย่าเผยแพร่หรือขายคอร์ดและเนื้อร้องของเพลงที่มีลิขสิทธิ์ การใช้ในพิธีนมัสการหรือฉายบนจอ ควรมีใบอนุญาตที่เหมาะสม เช่น CCLI
@@ -75,6 +83,14 @@ the developer is unidentified. **That does not mean it contains a virus**; it me
 1. Run `LyrichordFree-Setup-<version>.exe`.
 2. If "Windows protected your PC" appears, click **More info › Run anyway**.
 3. Click Next to the end (no administrator rights needed).
+
+## Phones, iPad and Android (same Wi-Fi, no internet needed)
+1. Keep the app open on the computer and put the phone on the same Wi-Fi (a home or church router, or a phone hotspot the computer joins; no internet needed).
+2. Click **Use on phones / iPad** in the app window (or the **?** menu on the page) to show a QR code.
+3. Scan it with the phone camera (iPhone: Safari · Android: Chrome), then "Add to Home Screen" for next time.
+- The first time, Windows asks about the firewall: click **Allow** (private networks). macOS may ask to accept incoming connections: click **Allow**.
+- The link carries your computer's access key; without it nobody can open the app. Don't share it with strangers.
+- Over Wi-Fi like this, iPhone can't record from the microphone or keep the screen awake (a browser limit); use song files instead.
 
 ## Privacy and copyright
 Your songs and edits stay on your computer: no accounts, no tracking, no ads. Use songs you have the right to use; don't publish or sell

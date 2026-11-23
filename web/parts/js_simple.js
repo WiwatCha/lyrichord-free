@@ -64,6 +64,21 @@ function docHTML(kind) {
     <p>${T('แกะคอร์ด คีย์ ทำนอง และเนื้อร้องจากไฟล์เพลง แล้วเล่นตาม ซ้อม ขึ้นเวที และส่งออกได้ ทำงานในเครื่องของคุณ')}</p>
     <p>${T('แจกฟรีและเปิดซอร์สโค้ด (MIT) เพื่อเป็นประโยชน์กับพี่น้องและทุกคนที่รักดนตรี')}</p>`];
 }
+// ---- Wi-Fi mode: phones and tablets on the same network open this app (works without internet) ----
+async function openLan() {
+  $('#docTitle').textContent = T('ใช้บนมือถือ / iPad (Wi-Fi เดียวกัน)'); $('#docbody').innerHTML = `<p>${T('กำลังโหลด…')}</p>`; $('#docdlg').hidden = false;
+  let j = null; try { const r = await fetch(api('lan')); j = r.ok ? await r.json() : null; } catch {}
+  const steps = `<ol><li>${T('ให้มือถือหรือ iPad ต่อ Wi-Fi เดียวกับคอมเครื่องนี้ (Wi-Fi ในโบสถ์ หรือฮอตสปอตจากมือถือก็ได้ ไม่ต้องมีอินเทอร์เน็ต)')}</li>
+    <li>${T('สแกน QR ด้วยกล้อง แล้วเปิดลิงก์ (iPhone: Safari · Android: Chrome)')}</li>
+    <li>${T('ใช้ได้ตราบที่แอปบนคอมเปิดอยู่ เพิ่มไปยังหน้าจอโฮมไว้เปิดครั้งต่อไปได้')}</li></ol>`;
+  let body;
+  if (!j) body = `<p>${T('เปิดหน้านี้จากแอปบนคอมพิวเตอร์ (ปุ่มในหน้าต่าง Lyrichord) เพื่อดู QR')}</p>`;
+  else if (!j.on) body = `<p>${T('โหมด Wi-Fi ปิดอยู่ (รุ่นนี้รับเฉพาะเครื่องนี้)')}</p>`;
+  else if (!j.link) body = `<p>${T('ยังไม่ได้ต่อ Wi-Fi หรือเครือข่ายใด: ต่อ Wi-Fi หรือเปิดฮอตสปอตจากมือถือแล้วต่อคอมเข้าไป จากนั้นเปิดหน้านี้ใหม่')}</p>${steps}`;
+  else body = `${steps}<div class="lanqr">${j.qr}<input readonly value="${esc(j.link)}" onclick="this.select()" aria-label="${T('ลิงก์สำหรับมือถือ')}"></div>
+    <p class="hint">${T('ลิงก์มีรหัสเข้าใช้ อย่าส่งต่อให้คนนอกวง · ครั้งแรกคอมอาจถามว่าให้รับการเชื่อมต่อไหม ให้กดอนุญาต (Allow) · ผ่าน Wi-Fi แบบนี้ มือถือจะใช้ไมค์อัดเสียงไม่ได้ ส่วนอื่นใช้ได้ครบ')}</p>`;
+  $('#docbody').innerHTML = body; $('#docclose').focus();
+}
 function openDoc(kind) {
   const [title, body] = docHTML(kind);
   $('#docTitle').textContent = title; $('#docbody').innerHTML = body; $('#docdlg').hidden = false; $('#docclose').focus();
@@ -87,6 +102,7 @@ $('#clang').addEventListener('click', e => { const b = e.target.closest('[data-l
 // ---- wiring ----
 $('#addbtn').addEventListener('click', () => { if (S.pro) { $('#adds').scrollIntoView({ block: 'center', behavior: 'smooth' }); $('#file').click(); } else openAdd(); });
 $('#libbtn2').addEventListener('click', () => { S.libOpen = !S.libOpen; store.set('cl-libopen', S.libOpen ? '1' : '0'); if (S.libOpen) loadLibrary(); else renderLibrary(); });
+$('#lanitem').hidden = !/^(localhost|127\.|\[::1\])/.test(location.hostname);  // already on a phone
 $('#addclose').addEventListener('click', closeAdd);
 $('#addback').addEventListener('click', closeAdd);
 // choosing a way in closes the window (the file picker opens on top of it)
@@ -100,7 +116,7 @@ $('#prochk').addEventListener('change', e => setPro(e.target.checked));
 $('#helpbtn').addEventListener('click', e => { e.stopPropagation(); const p = $('#helppop'); p.hidden = !p.hidden; $('#helpbtn').setAttribute('aria-expanded', !p.hidden); });
 document.addEventListener('click', e => {
   const h = e.target.closest('[data-help]');
-  if (h) { e.preventDefault(); $('#helppop').hidden = true; $('#helpbtn').setAttribute('aria-expanded', false); if (h.dataset.help === 'tour') startTour(); else openDoc(h.dataset.help); return; }
+  if (h) { e.preventDefault(); $('#helppop').hidden = true; $('#helpbtn').setAttribute('aria-expanded', false); if (h.dataset.help === 'tour') startTour(); else if (h.dataset.help === 'lan') openLan(); else openDoc(h.dataset.help); return; }
   if (!e.target.closest('#helppop,#helpbtn')) { $('#helppop').hidden = true; $('#helpbtn').setAttribute('aria-expanded', false); }
 });
 $('#docclose').addEventListener('click', () => { $('#docdlg').hidden = true; });
