@@ -115,7 +115,7 @@ def site_packages(py_root: Path) -> Path:
 
 
 def strip(py_root: Path):
-    """Drop what is never used at run time (tests, headers, static libraries, unused Basic Pitch models)."""
+    """Drop what is never used at run time (tests, headers, static libraries, unused Basic Pitch models, unused packages)."""
     sp = site_packages(py_root)
     gone = 0
     for p in list(sp.rglob("*")):
@@ -126,6 +126,13 @@ def strip(py_root: Path):
         kill |= p.is_dir() and rel in ("torch/include", "torch/share", "torchaudio/include", "caffe2")
         kill |= p.is_file() and p.suffix == ".lib" and rel.startswith("torch/lib/")  # Windows static libs, hundreds of MB
         if kill:
+            gone += sum(f.stat().st_size for f in p.rglob("*") if f.is_file()) if p.is_dir() else p.stat().st_size
+            shutil.rmtree(p) if p.is_dir() else p.unlink()
+    # packages the app never loads (checked 2026-11-25: a full analysis with lyrics and de-reverb, OCR and the Demucs
+    # process with these blocked gave the same result in every field and the same stems): scikit-learn and narwhals
+    # (librosa's decompose/segment, which the app does not use), networkx (torch.fx / compile), hf_xet (model downloads)
+    for pat in ("sklearn", "scikit_learn*", "narwhals", "narwhals-*.dist-info", "networkx", "networkx-*.dist-info", "hf_xet", "hf_xet-*.dist-info"):
+        for p in sp.glob(pat):
             gone += sum(f.stat().st_size for f in p.rglob("*") if f.is_file()) if p.is_dir() else p.stat().st_size
             shutil.rmtree(p) if p.is_dir() else p.unlink()
     bp = sp / "basic_pitch" / "saved_models" / "icassp_2022"
@@ -270,6 +277,56 @@ def package_linux(root: Path, out: Path) -> Path:
     return tgz
 
 
+# cloudflared (Cloudflare, Apache-2.0): the quick tunnel that lets the online page reach this computer from anywhere
+# (full edition; Lyrichord Free never goes online). Pinned: SHA-256 of the download (GitHub's asset digest) and of the
+# program itself (Cloudflare's release notes list the program's; for the .exe the two are the same file).
+CLOUDFLARED = "2026.10.7"
+CF_FILES = {("darwin", "arm64"): ("cloudflared-darwin-arm64.tgz",
+                                  "3586ccf397e98e5f437e60e7c307ca6ac463e110580503af8bb8e6f9ebf831bd",
+                                  "2136431d5eb467bf447d2ee514b713e192719b143aec1d9e09bf7dc290d5bb12"),
+            ("win32", "x64"): ("cloudflared-windows-amd64.exe",
+                               "2493dbc168923bb3e59e5e7716f71deced92992eea9acd6e9d74f84ac7751343",
+                               "2493dbc168923bb3e59e5e7716f71deced92992eea9acd6e9d74f84ac7751343")}
+
+
+def fetch_cloudflared(root: Path) -> None:
+    """<root>/bin/cloudflared(.exe); the launcher hands its path to the app (LYRICORD_CLOUDFLARED)."""
+    import hashlib
+
+    if EDITION == "free":
+        return
+    got = CF_FILES.get((sys.platform, ARCH))
+    if not got:
+        log(f"cloudflared: no pinned build for {sys.platform}-{ARCH}, skipped (online access needs it installed)")
+        return
+    name, sha, prog_sha = got
+    tmp = Path(tempfile.mkdtemp(prefix="cf-"))
+    check = lambda p, want: hashlib.sha256(p.read_bytes()).hexdigest() == want or SystemExit(
+        f"cloudflared {p.name}: SHA-256 is not the pinned {want}")
+    try:
+        f = tmp / name
+        urllib.request.urlretrieve(f"https://github.com/cloudflare/cloudflared/releases/download/{CLOUDFLARED}/{name}", f)
+        if (err := check(f, sha)) is not True:
+            raise err
+        dst = root / "bin"
+        dst.mkdir(exist_ok=True)
+        exe = dst / ("cloudflared.exe" if WIN else "cloudflared")
+        if name.endswith(".tgz"):
+            with tarfile.open(f) as t:
+                member = next(m for m in t.getmembers() if Path(m.name).name == "cloudflared" and m.isfile())
+                with t.extractfile(member) as src, exe.open("wb") as out:
+                    shutil.copyfileobj(src, out)
+        else:
+            shutil.copy(f, exe)
+        if (err := check(exe, prog_sha)) is not True:
+            exe.unlink()
+            raise err
+        exe.chmod(0o755)
+        log(f"cloudflared {CLOUDFLARED}: {exe.stat().st_size / 1e6:.0f} MB, SHA-256 checked")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=str(REPO / "dist" / "desktop"))
@@ -299,6 +356,7 @@ def main():
     copy_app(root, py)
     run([py, DESK / "fetch_models.py", root / "models"] + (["--lite"] if a.lite else []) + (["--no-dereverb"] if EDITION == "free" else []))
     strip(pyroot)
+    fetch_cloudflared(root)
     log(f"bundle: python {size_of(pyroot):.0f} MB · models {size_of(root / 'models'):.0f} MB · total {size_of(root):.0f} MB")
     if a.test:
         self_test(root, py, a.lite)

@@ -65,6 +65,8 @@ def setup_env() -> None:
     env.setdefault("LYRICORD_EDITION", EDITION)
     # Wi-Fi mode: phones and tablets on the same network open the app (with the access key); on in Lyrichord Free
     env.setdefault("LYRICORD_LAN", "1" if EDITION == "free" else "0")
+    # watched folder: audio files put in ~/Music/<app> Inbox are analysed into the song library on their own
+    env.setdefault("LYRICORD_INBOX", str(Path.home() / "Music" / f"{APP_NAME} Inbox"))
     env.setdefault("BTC_DIR", str(MODELS / "btc"))
     env.setdefault("OCR_MODEL_DIR", str(MODELS / "ppocr"))
     env.setdefault("BEAT_THIS_CKPT", str(MODELS / "beat_this-final0.ckpt"))
@@ -72,6 +74,9 @@ def setup_env() -> None:
     if (MODELS / "whisper-small" / "model.bin").exists():
         env.setdefault("WHISPER_MODEL", str(MODELS / "whisper-small"))
     env.setdefault("UVR_MODEL_DIR", str(MODELS / "uvr"))
+    cf = MODELS.parent / "bin" / ("cloudflared.exe" if sys.platform == "win32" else "cloudflared")
+    if cf.exists():  # bundled with the full edition (desktop/build.py): online access works with nothing else installed
+        env.setdefault("LYRICORD_CLOUDFLARED", str(cf))
     env.setdefault("ALLOW_MODEL_FETCH", "1")  # the Thai Whisper model is fetched once into the user's data folder
     env.setdefault("HF_HUB_OFFLINE", "1")
     env.setdefault("TRANSFORMERS_OFFLINE", "1")

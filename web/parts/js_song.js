@@ -1,6 +1,7 @@
 // ================= song data, levels, saving =================
 function songKey(s) {
-  if (s.kind === 'demo') return 'demo'; return 'f:' + s.name + '|' + Math.round(s.res.duration); }
+  if (s.kind === 'demo') return 'demo:grace';  // the old demo's saved edits (key 'demo') must not land on this song
+  return 'f:' + s.name + '|' + Math.round(s.res.duration); }
 function finish(s, res, url, given) {
   if (s.dead) { if (url && url.startsWith('blob:')) URL.revokeObjectURL(url); return; }
   s.res = res; s.url = url; s.status = 'ready'; s.progress = 1;

@@ -234,6 +234,77 @@ def drop_double_beats(beats: np.ndarray, frac: float = 0.4) -> np.ndarray:
     return np.asarray(out)
 
 
+def steady_octave(beats: np.ndarray, min_run: int = 8) -> np.ndarray:
+    """One tempo for the whole song: where the model counts twice as fast (or half as fast) as in most of the song
+    for min_run beats or more, every other beat is dropped (or a beat added between two). A chorus with busy drums
+    made Beat This! count double for 90 s (I'm OK // Not OK, 68 BPM: 78 BPM reported, the chorus bars half as long).
+    The song's own tempo is the one that lasts longest; a short stretch can't change it."""
+    b = np.asarray(beats, float)
+    if len(b) < 3 * min_run:
+        return b
+    ib = np.diff(b)
+    loc = np.array([np.median(ib[max(0, i - 3):i + 4]) for i in range(len(ib))])
+    order = np.argsort(loc)
+    cum = np.cumsum(ib[order])
+    m = float(loc[order][np.searchsorted(cum, cum[-1] / 2)])  # median beat length, weighted by time
+    ratio = loc / m
+    zone = np.zeros(len(ib), int)  # 1: counted double, -1: counted half
+    zone[(ratio > 0.4) & (ratio < 0.62)] = 1
+    zone[(ratio > 1.6) & (ratio < 2.4)] = -1
+    i, runs = 0, []
+    while i < len(zone):  # keep only long stretches
+        j = i
+        while j < len(zone) and zone[j] == zone[i]:
+            j += 1
+        if zone[i] != 0 and (j - i) * (1 if zone[i] == 1 else 2) >= min_run:
+            runs.append((i, j, int(zone[i])))
+        i = j
+    out, k = [], 0
+    for i, j, z in runs:  # interval indices i..j-1 cover beats i..j
+        out.extend(b[k:i + 1])
+        if z == 1:  # double counting: from the last kept beat, keep the beat closest to one beat later
+            last = out[-1]
+            for t in b[i + 1:j + 1]:
+                if t - last >= 0.7 * m:
+                    out.append(t)
+                    last = t
+        else:  # half counting: a beat between each pair
+            for a, c in zip(b[i:j], b[i + 1:j + 1]):
+                out.extend([(a + c) / 2, c])
+        k = j + 1
+    out.extend(b[k:])
+    out = sorted(set(np.round(out, 6)))
+    # a single extra beat halfway between two (a fill): both gaps about half a beat, together about one, in a
+    # steady stretch (3 beats either side within 15% of a beat: free-time playing, Chopin's rubato, is left alone)
+    i, extra = 1, 0
+    def merged(gs):  # gaps, with another such half-beat pair counted as the one beat it is (two fills close together)
+        res, k = [], 0
+        while k < len(gs):
+            if k + 1 < len(gs) and gs[k] < 0.65 * m and gs[k + 1] < 0.65 * m and 0.8 * m < gs[k] + gs[k + 1] < 1.2 * m:
+                res.append(gs[k] + gs[k + 1]); k += 2
+            else:
+                res.append(gs[k]); k += 1
+        return res
+
+    def steady(gs):
+        return len(gs) >= 3 and all(0.85 * m < x < 1.15 * m for x in gs[:3])
+
+    while i < len(out) - 1:
+        g0, g1 = out[i] - out[i - 1], out[i + 1] - out[i]
+        if (g0 < 0.65 * m and g1 < 0.65 * m and 0.8 * m < g0 + g1 < 1.2 * m
+                and steady(merged(list(np.diff(out[max(0, i - 6):i])))[::-1])
+                and steady(merged(list(np.diff(out[i + 1:i + 7]))))):
+            del out[i]
+            extra += 1
+        else:
+            i += 1
+    out = np.asarray(out)
+    if runs or extra:
+        log.info("steady tempo: %d stretch(es) counted %s, %d extra beat(s), %d -> %d beats", len(runs),
+                 "/".join("double" if z == 1 else "half" for *_, z in runs) or "-", extra, len(b), len(out))
+    return out
+
+
 def beat_this_beats(y: np.ndarray) -> tuple[np.ndarray, np.ndarray] | None:
     """Beats and downbeats (seconds) from the Beat This! model (ISMIR 2024), when it is installed."""
     global _BT_MODEL
@@ -252,7 +323,7 @@ def beat_this_beats(y: np.ndarray) -> tuple[np.ndarray, np.ndarray] | None:
         with torch.no_grad():
             beat, down = net(torch.from_numpy(_log_mel_50fps(np.asarray(y))))
         beats, downbeats = post(beat, down)
-        beats, downbeats = drop_double_beats(np.asarray(beats, float)), np.asarray(downbeats, float)
+        beats, downbeats = steady_octave(drop_double_beats(np.asarray(beats, float))), np.asarray(downbeats, float)
         return (beats, downbeats) if len(beats) >= 8 else None
     except Exception as e:  # never let the optional model break an analysis
         log.warning("beat_this failed, using the built-in beat tracker: %s", e)
@@ -666,6 +737,7 @@ CPUS = os.cpu_count() or 2
 # 2 cores (412 s -> 599 s) and on 14 cores too (M3 Max, 4 songs 1007 s -> 1086 s): what can run beside it after
 # Demucs takes only 5-17 s, and splitting the threads slows Whisper + de-reverb, the bottleneck (tests 2026-11-22)
 PARALLEL = os.environ.get("PARALLEL_LYRICS", "0") == "1"
+SHEET_OVERLAP = os.environ.get("SHEET_OVERLAP", "auto") == "1" or (os.environ.get("SHEET_OVERLAP", "auto") == "auto" and CPUS >= 6)
 WHISPER_THREADS = max(2, CPUS // 2) if PARALLEL else 0  # 0 = ctranslate2 default
 
 
@@ -937,9 +1009,9 @@ def transcribe_lyrics(y: np.ndarray, workdir: Path, report: Report, voice_share:
     """Whisper on the vocal stem -> word list [{t0, t1, text}].
     * instrumental pieces are skipped (vocal_presence);
     * Whisper small; Thonburian Whisper medium (Thai fine-tune) only when USE_TH_WHISPER=1 (it skipped verses in tests);
-    * with a de-reverbed copy of the stem (dry_fn, made in its own process only once singing is confirmed, while
-      Whisper hears the plain stem), both are transcribed and the transcript that does not loop and is surer wins
-      (de-reverb helped a ballad 84% -> 88-92% of the lyrics, but on rock it made Whisper loop: tests/melody, 2026-11);
+    * with a de-reverbed copy of the stem (dry_fn, made in its own process), it is transcribed too only when the
+      plain stem's transcript loops or is empty, and the transcript that does not loop and is surer wins
+      (DEREVERB_ALWAYS=1: always both, as up to r23);
     * invented words are cleaned out (clean_words); spoken passages are not lyrics;
     * hint: lyrics the user imported, given to Whisper as words to expect."""
     if not has_whisper():
@@ -959,28 +1031,28 @@ def transcribe_lyrics(y: np.ndarray, workdir: Path, report: Report, voice_share:
             th = thai_whisper(report)
             if th:
                 model, label = _whisper_at(th), "Whisper ภาษาไทย"
-        # de-reverb runs in its own process while Whisper hears the plain vocal stem; then the de-reverbed one
-        dry_job, y_dry = None, None
         if dry_fn and not dereverb_for(lang):
             log.info("lyrics in %s: no de-reverb pass", lang)
             dry_fn = None
-        if dry_fn and PARALLEL:
-            from concurrent.futures import ThreadPoolExecutor
-
-            pool = ThreadPoolExecutor(max_workers=1)
-            dry_job = pool.submit(dry_fn)
-            pool.shutdown(wait=False)
-        elif dry_fn:
-            y_dry = dry_fn()
-        # progress of the lyrics stage (0-1): de-reverb first, then one Whisper pass per version of the stem
-        two = dry_fn is not None
-        best = _transcribe(model, y16, lang, f"{label} · เสียงร้อง", report, hotwords=hint, span=(0.1, 0.55) if two else (0.05, 0.98))
+        # the plain vocal stem first; the de-reverbed one (de-reverb ~10-30 s + a second Whisper pass) only when that
+        # transcript is no answer (it loops or is empty). Tests 2026-11-25, 5 Thai songs at full length
+        # (tests/lyrics/dereverb_study.py): with a usable plain transcript the de-reverbed one was picked once
+        # (kukkhao, recall 0.323 -> 0.301) and cost 51-284 s a song. DEREVERB_ALWAYS=1: both passes every time.
+        always = dry_fn is not None and os.environ.get("DEREVERB_ALWAYS", "0") == "1"
+        # progress of the lyrics stage (0-1): one Whisper pass per version of the stem
+        best = _transcribe(model, y16, lang, f"{label} · เสียงร้อง", report, hotwords=hint,
+                           span=(0.05, 0.55) if always else (0.05, 0.9) if dry_fn else (0.05, 0.98))
         best["source"] = "เสียงร้อง"
-        if dry_job:
-            y_dry = dry_job.result()
+        y_dry = None
+        if dry_fn and (always or not _pick_score(best)[0]):
+            if not always:
+                log.info("plain transcript is no answer %s: de-reverbed pass", _pick_score(best))
+                report("ฟังอีกรอบจากเสียงร้องที่ลบเสียงก้อง (รอบแรกฟังไม่ชัด)", 0.9)
+            y_dry = dry_fn()
         if y_dry is not None:
             d16 = librosa.resample(np.asarray(y_dry, np.float32), orig_sr=SR, target_sr=16000)
-            r = _transcribe(model, d16, lang, f"{label} · ไม่มีเสียงก้อง", report, hotwords=hint, span=(0.55, 0.98))
+            r = _transcribe(model, d16, lang, f"{label} · ไม่มีเสียงก้อง", report, hotwords=hint,
+                            span=(0.55, 0.98) if always else (0.92, 0.98))
             r["source"] = "ไม่มีเสียงก้อง"
             log.info("plain %s / de-reverbed %s", _pick_score(best), _pick_score(r))
             if _pick_score(r) > _pick_score(best):
@@ -1083,6 +1155,48 @@ def relisten_lyrics(workdir: Path, text: str, report: Report) -> dict | None:
     out = {**first, "words": words, "hinted": True}
     (workdir / "lyrics_hinted.json").write_text(json.dumps(out, ensure_ascii=False), "utf-8")
     return out
+
+
+# ---------------------------------------------------------------- warm-up
+def warm_up() -> dict[str, float]:
+    """Load the models and compile librosa's numba code once, while the app waits for its first song, so that song
+    does not pay for it (M3 Max, 60 s clip: first sheet 16.7 s, the next one 13.5 s). Each piece on its own: a model
+    that is not installed or fails is skipped. Returns seconds per piece (for the log)."""
+    import tempfile
+    import time
+
+    n = SR * 6
+    t = np.arange(n) / SR
+    y = (0.2 * np.sin(2 * np.pi * 220 * t) + 0.1 * np.sin(2 * np.pi * 330 * t)
+         + 0.01 * np.random.default_rng(0).standard_normal(n)).astype(np.float32)
+    took: dict[str, float] = {}
+    with tempfile.TemporaryDirectory() as tmp:
+        steps = [
+            ("beats", lambda: track_beats(y)),
+            ("beat_this", lambda: beat_this_beats(y)),
+            ("basic_pitch", lambda: basic_pitch(y, Path(tmp), "warm")),
+            ("btc", lambda: CN.available() and CN.beat_log_probs(y, SR, np.arange(0.0, 6.0, 0.5), 6.0)),
+            ("rmvpe", lambda: _warm_rmvpe(y)),
+            ("whisper", lambda: lyrics_presence(y, None)),
+        ]
+        for name, fn in steps:
+            t0 = time.perf_counter()
+            try:
+                fn()
+            except Exception as e:
+                log.info("warm-up %s skipped: %s", name, e)
+            took[name] = round(time.perf_counter() - t0, 2)
+    ONSETS.clear()
+    return took
+
+
+def _warm_rmvpe(y: np.ndarray) -> None:
+    if MELODY_ENGINE == "basic":
+        return
+    from . import rmvpe as RM
+
+    if RM.ckpt_path().exists():
+        RM.pitch(y, SR)
 
 
 # ---------------------------------------------------------------- run
@@ -1195,6 +1309,16 @@ def analyze_file(src: Path, workdir: Path, report: Report, title: str = "", tune
     dur = len(y) / SR
     warnings = input_warnings(y, dur)
 
+    # Demucs runs in its own process (16-21 s a song): meanwhile this one works out what needs only the mix,
+    # the beats (Beat This!) and BTC's chord probabilities per frame; once the stems are there, "is anyone singing?"
+    # and the bass notes go beside the beat and chord stages. Same numbers (tests/regress); M3 Max, 3 songs, 2 rounds:
+    # 115-122 s -> 107 s to the sheet (either half alone gained 0-4 s: the two together keep the cores busy).
+    # Machines with 6+ cores (fewer: each stage would only slow the other); SHEET_OVERLAP=0/1 forces it.
+    from concurrent.futures import ThreadPoolExecutor
+
+    side = ThreadPoolExecutor(max_workers=3, thread_name_prefix="sheet")
+    early_bt = side.submit(beat_this_beats, y) if SHEET_OVERLAP else None  # the model was trained on full mixes
+    early_btc = side.submit(CN.frame_log_probs, y, SR) if CN.available() and SHEET_OVERLAP else None
     stems = separate(src, workdir, report)
     separated = stems is not None
     if separated:
@@ -1221,16 +1345,19 @@ def analyze_file(src: Path, workdir: Path, report: Report, title: str = "", tune
             report.lyrics(None)
 
     if not cache.exists() and has_whisper() and PARALLEL:
-        from concurrent.futures import ThreadPoolExecutor
-
         pool = ThreadPoolExecutor(max_workers=1)
         lyrics_job = pool.submit(lyrics_task)
         pool.shutdown(wait=False)
+    share = float(np.sum(stems_orig_vocals ** 2) / max(1e-9, np.sum(y ** 2))) if separated else None
+    early_pres = (side.submit(lyrics_presence, stems_orig_vocals if separated else y, share)
+                  if not cache.exists() and lyrics_job is None and has_whisper() and SHEET_OVERLAP else None)
+    early_bass = side.submit(basic_pitch, stems["bass"], workdir, "bass") if separated and SHEET_OVERLAP else None
+    side.shutdown(wait=False)
 
     report("กำลังจับจังหวะ", 0.5)
     beats, bpm, beat_onset, onset_env = track_beats(rhythm)
     downbeats = None
-    bt = beat_this_beats(y)  # the model was trained on full mixes
+    bt = early_bt.result() if early_bt is not None else beat_this_beats(y)
     if bt is not None:
         beats, downbeats = bt
         bpm = tempo_of(beats)
@@ -1281,7 +1408,10 @@ def analyze_file(src: Path, workdir: Path, report: Report, title: str = "", tune
         beats = refined
         bpm = tempo_of(beats)
         rms_beats, beat_onset = rms_of(beats), onset_at(onset_env, beats)
-    bass_post = basic_pitch(stems["bass"], workdir, "bass")[0] if separated else None
+    if separated:  # retuned: the bass notes again, from the retuned stem
+        bass_post = early_bass.result()[0] if early_bass is not None and tscale == 1.0 else basic_pitch(stems["bass"], workdir, "bass")[0]
+    else:
+        bass_post = None
 
     report("กำลังแกะคอร์ด", 0.78)
     pcs, bss, low = beat_profiles(post, bass_post, beats, dur, rms_beats, tscale)
@@ -1304,7 +1434,8 @@ def analyze_file(src: Path, workdir: Path, report: Report, title: str = "", tune
         try:
             report("กำลังแกะคอร์ดด้วย AI (BTC)", 0.8)
             yb, bb = (librosa.resample(y, orig_sr=SR, target_sr=SR / tscale), beats / tscale) if tscale != 1.0 else (y, beats)
-            s_lp, l_lp = CN.beat_log_probs(yb, SR, bb, dur / tscale)
+            frames = early_btc.result() if early_btc is not None and tscale == 1.0 else None
+            s_lp, l_lp = CN.beat_log_probs(yb, SR, bb, dur / tscale, frames)
             chords = CH.decode_btc(s_lp, l_lp, bss, low, chg, pcs=pcs)
             chord_engine = "btc"
             alts = chord_alternatives(s_lp)
@@ -1317,7 +1448,6 @@ def analyze_file(src: Path, workdir: Path, report: Report, title: str = "", tune
     key = CH.key_from_chords(chords)
     phase = int(meter["phase"])
 
-    share = float(np.sum(stems_orig_vocals ** 2) / max(1e-9, np.sum(y ** 2))) if separated else None
     pres, pending = None, False
     if cache.exists():
         lyrics = json.loads(cache.read_text("utf-8"))
@@ -1330,7 +1460,7 @@ def analyze_file(src: Path, workdir: Path, report: Report, title: str = "", tune
         # the long Whisper pass (1.5-9 min) comes after the melody: the sheet (chords, key, melody) is handed out
         # first through on_partial, and the words follow. Only the quick "is anyone singing?" check is needed now.
         report("กำลังตรวจว่ามีเสียงร้องไหม", 0.88)
-        pres = lyrics_presence(stems_orig_vocals if separated else y, share)
+        pres = early_pres.result() if early_pres is not None else lyrics_presence(stems_orig_vocals if separated else y, share)
         lyrics = None
         pending = True
     else:

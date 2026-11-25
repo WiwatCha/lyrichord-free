@@ -29,7 +29,7 @@ function renderSources() {
       <button class="x" data-x="${s.id}" aria-label="ลบ ${esc(s.name)}">✕</button>
       <span class="mt${s.status === 'error' ? ' err' : ''}">${metaText(s)}</span>
       ${s.status === 'analyzing' ? `<span class="mini" style="grid-column:2"><i style="width:${Math.round(s.progress * 100)}%"></i></span>` : ''}
-    </div>`).join('');
+    </div>`).join('');  rememberOpen();
 }
 function switchTo(id) {
   const prev = A(), next = S.sources.find(s => s.id === id); if (!next) return;
@@ -103,25 +103,24 @@ async function decode(file) {
   for (let c = 0; c < buf.numberOfChannels; c++) { const d = buf.getChannelData(c); for (let i = 0; i < n; i++) mono[i] += d[i] / buf.numberOfChannels; }
   return { mono, sr: buf.sampleRate };
 }
-async function addFile(f) {
+async function addFile(f, opts = {}) {
   if (!f) return;
   const s = addSource('file', f.name.replace(/\.[^.]+$/, ''), { server: !!S.backend }), url = URL.createObjectURL(f);
-  switchTo(s.id);
-  if (S.backend) { s.retry = () => { s.status = 'analyzing'; s.progress = 0; renderAll(); serverUpload(s, f, url); }; return serverUpload(s, f, url); }
+  if (!opts.bg) switchTo(s.id);  // several songs at once: the first one shows, the others wait their turn
+  if (S.backend) { s.retry = () => { s.status = 'analyzing'; s.progress = 0; renderAll(); serverUpload(s, f, url); }; return serverUpload(s, f, url, opts.queued); }
   progressOf(s, 'กำลังเปิดไฟล์', 0.02);
   try { const { mono, sr } = await decode(f); await analyzeInBrowser(s, mono, sr, url); }
   catch { URL.revokeObjectURL(url); fail(s, 'เปิดไฟล์นี้ไม่ได้ ลองไฟล์ mp3, wav หรือ m4a'); }
 }
 async function addDemo() {
-  const s = addSource('demo', 'เพลงตัวอย่าง C2 G/B Am7 Fmaj7');
+  // "Amazing Grace" (public domain): known everywhere, clear chords, 3/4; synthesized in the page, no file needed
+  const s = addSource('demo', 'Amazing Grace');
   switchTo(s.id);
-  const { samples, sr } = MA.synthDemo();
+  const { samples, sr } = MA.synthGrace();
   const url = URL.createObjectURL(new Blob([MA.toWav(samples, sr)], { type: 'audio/wav' }));
   await analyzeInBrowser(s, samples, sr, url);
   if (!s.lyEdited && !s.lines.length && s.status === 'ready') {
-    const L = ['ฟ้า สีคราม ยามเช้า', 'ลม พัดผ่าน ใจเรา', 'ใจ ฉันยัง คิดถึง', 'คิดถึงเธอ ทุกวัน', 'Sing along with me', 'with the chords tonight', 'ทุก ทุกวัน ที่ผ่านไป', 'ไม่ลืมเลย สักวัน'];
-    s.lines = L.concat(L).map((text, k) => ({ t: (s.res.beats[s.bars[1 + k * 1]?.[0]] ?? 0) + 0.01, text, brk: k === 4 || k === 8 || k === 12 })).filter(l => l.t > 0.01);
-    s.lySrc = 'manual'; s.lyFile = ''; s.lyCache = null;
+    s.lines = MA.graceLines(); s.lySrc = 'manual'; s.lyFile = ''; s.lyCache = null;
     if (S.active === s.id) renderSheet();
   }
 }
@@ -214,11 +213,12 @@ async function reanalyze(s, change) {
   if (s.status === 'ready') { Object.assign(s, keep); s.lyCache = null; if (S.active === s.id) renderAll(); }
   if (s.status === 'ready') hint('tempo' in change ? `${'แกะใหม่แล้ว'} · ${s.res.bpm} BPM` : tune === 'off' ? 'แกะใหม่แล้ว โดยไม่ปรับจูน' : 'แกะใหม่แล้ว โดยให้แอปตรวจและปรับจูนเอง');
 }
-async function serverUpload(s, f, url) {
+async function serverUpload(s, f, url, queued) {
   progressOf(s, 'กำลังส่งไฟล์ไปหลังบ้าน', 0.01);
   try {
     const fd = new FormData(); fd.append('file', f);
     const r = await fetch(api('jobs/upload'), { method: 'POST', body: fd }), j = await r.json();
+    if (queued) queued();  // the server has it in its queue (several songs: the next upload may start)
     if (!r.ok) throw new Error(j.detail);
     if (j.from_library) {
       const open = S.sources.find(x => x !== s && x.jobId === j.id && x.status === 'ready');
@@ -442,6 +442,7 @@ function drawRoll(t) {
   if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
   const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
   const s = A(), ink = cssColor('--ink'), mut = cssColor('--mut'), line = cssColor('--line');
+  const NV = document.body.classList.contains('navy'), HEAD = NV ? '#2ed3c6' : '#ff2f68', HEADG = NV ? 'rgb(46 211 198/.8)' : 'rgb(255 47 104/.8)';
   g.textBaseline = 'middle';
   const LEFT = 40, TOP = 24;
   const lanes = (lo, hi, Y) => {
@@ -457,7 +458,7 @@ function drawRoll(t) {
     const tr = s.L ? s.L.trail : [], now = tr.length ? tr[tr.length - 1].t : 0, span = 8, lo = 45, hi = 84;
     const X = v => LEFT + (v - (now - span)) / span * (W - LEFT - 10), Y = m => TOP + (hi - m) / (hi - lo) * (H - TOP - 6);
     lanes(lo, hi, Y);
-    g.strokeStyle = '#ff2f68'; g.lineWidth = 3; g.lineJoin = 'round'; g.beginPath(); let pen = false;
+    g.strokeStyle = HEAD; g.lineWidth = 3; g.lineJoin = 'round'; g.beginPath(); let pen = false;
     for (const p of tr) { if (p.m < 0) { pen = false; continue; } if (!pen) { g.moveTo(X(p.t), Y(p.m)); pen = true; } else g.lineTo(X(p.t), Y(p.m)); }
     g.stroke();
     if (s.liveMidi >= 0) { g.fillStyle = ink; g.font = '700 16px "Bai Jamjuree",sans-serif'; g.fillText(NAMES[mod(Math.round(s.liveMidi))], Math.min(W - 30, X(now) + 8), Y(s.liveMidi)); }
@@ -476,7 +477,7 @@ function drawRoll(t) {
   // piano keys: one row per semitone, C labelled
   for (let m = Math.ceil(lo); m <= hi; m++) {
     const pc = mod(m + trOf(s)), blk = [1, 3, 6, 8, 10].includes(pc), y = Y(m) - rowH / 2;
-    g.fillStyle = blk ? '#1a1e27' : '#e6eaf1'; g.fillRect(2, y, KL - 8, Math.max(1, rowH - 0.5));
+    g.fillStyle = blk ? (NV ? '#1b2c4d' : '#1a1e27') : (NV ? '#dfe8f7' : '#e6eaf1'); g.fillRect(2, y, KL - 8, Math.max(1, rowH - 0.5));
     if (pc === 0 && rowH >= 7) { g.fillStyle = '#0b0d12'; g.font = `500 ${Math.min(11, rowH + 2)}px "Bai Jamjuree",sans-serif`; g.fillText(NAMES[0] + (Math.floor((m + trOf(s)) / 12) - 1), 5, Y(m)); }
     if (!blk) { g.strokeStyle = line; g.globalAlpha = pc === 0 ? 0.9 : 0.35; g.beginPath(); g.moveTo(KL, Y(m)); g.lineTo(W, Y(m)); g.stroke(); g.globalAlpha = 1; }
   }
@@ -545,7 +546,7 @@ function drawRoll(t) {
     g.font = `700 ${active ? 14 : 12}px "Bai Jamjuree",sans-serif`;
     if (w > 24) { g.fillStyle = active ? '#0b0d12' : '#fff'; g.fillText(lab, x + 5, y + 1); } else if (!past) { g.fillStyle = ink; g.fillText(lab, x, y - nh / 2 - 7); }
   }
-  const px = X(t); g.strokeStyle = '#ff2f68'; g.lineWidth = 2; g.shadowColor = 'rgb(255 47 104/.8)'; g.shadowBlur = 10; g.beginPath(); g.moveTo(px, 0); g.lineTo(px, H); g.stroke(); g.shadowBlur = 0;
+  const px = X(t); g.strokeStyle = HEAD; g.lineWidth = 2; g.shadowColor = HEADG; g.shadowBlur = 10; g.beginPath(); g.moveTo(px, 0); g.lineTo(px, H); g.stroke(); g.shadowBlur = 0;
 }
 let raf = 0;
 const loop = () => { tick(); raf = audio.paused ? 0 : requestAnimationFrame(loop); };

@@ -715,6 +715,38 @@ const MA = ((VOCAB) => {
     return { samples: render(ev, lead + 64 * sb + 1.5, sr), sr };
   }
 
+  // the app's demo song: "Amazing Grace" (words John Newton 1779, tune New Britain 1829, both public domain)
+  // key G, 3/4, 90 BPM: a one-bar intro, then two verses of 16 bars
+  // per verse: G G C G | G Em D D7 | G G C G | Em D G G   (bass on 1, pad held, hi-hat on 2 and 3)
+  const GRACE_CH = { G: [43, [55, 59, 62]], G7: [43, [53, 59, 62, 65]], C: [36, [55, 60, 64]], Em: [40, [55, 59, 64]], D: [38, [54, 57, 62]], D7: [38, [54, 57, 60, 66]] };
+  const GRACE_BARS = ['G', 'G', 'C', 'G', 'G', 'Em', 'D', 'D7', 'G', 'G', 'C', 'G', 'Em', 'D', 'G', 'G'];
+  // melody: [beat from bar 1, beats, midi]; the pickup ("A-", "'Twas") is the last beat before bar 1
+  const GRACE_MEL = [[-1, 1, 62], [0, 2, 67], [2, 0.5, 71], [2.5, 0.5, 67], [3, 2, 71], [5, 1, 69], [6, 2, 67], [8, 1, 64], [9, 2, 62], [11, 1, 62],
+    [12, 2, 67], [14, 0.5, 71], [14.5, 0.5, 67], [15, 2, 71], [17, 1, 69], [18, 5, 74], [23, 1, 71], [24, 2, 74], [26, 0.5, 71], [26.5, 0.5, 67],
+    [27, 2, 71], [29, 1, 69], [30, 2, 67], [32, 1, 64], [33, 2, 62], [35, 1, 62], [36, 2, 67], [38, 0.5, 71], [38.5, 0.5, 67], [39, 2, 71], [41, 1, 69], [42, 5, 67]];
+  const GRACE_LINES = [[-1, 'Amazing grace! How sweet the sound'], [11, 'That saved a wretch like me!'], [23, 'I once was lost, but now am found;'], [35, 'Was blind, but now I see.'],
+    [-1, '’Twas grace that taught my heart to fear,'], [11, 'And grace my fears relieved;'], [23, 'How precious did that grace appear'], [35, 'The hour I first believed.']];
+  const GRACE = { sb: 60 / 90, lead: 1, intro: 3, verse: 48 };
+  function synthGrace(sr = 22050) {
+    const { sb, lead, intro, verse } = GRACE, ev = [], T = b => lead + b * sb;
+    const bar = (b0, name) => {
+      const [bass, pad] = GRACE_CH[name];
+      for (const m of pad) ev.push({ t: T(b0), dur: 3 * sb - 0.05, midi: m, amp: 0.06, harm: PAD });
+      ev.push({ t: T(b0), dur: 2.6 * sb, midi: bass, amp: 0.22, harm: BASS });
+      ev.push({ t: T(b0), kick: 1 }); ev.push({ t: T(b0 + 1), hat: 1 }); ev.push({ t: T(b0 + 2), hat: 1 });
+    };
+    bar(0, 'G');
+    for (let v = 0; v < 2; v++) {
+      const b1 = intro + v * verse;
+      GRACE_BARS.forEach((c, k) => bar(b1 + 3 * k, c));
+      for (const [b, d, m] of GRACE_MEL) ev.push({ t: T(b1 + b), dur: d * sb - 0.06, midi: m, amp: 0.14, harm: LEAD });
+    }
+    bar(intro + 2 * verse, 'G');
+    return { samples: render(ev, T(intro + 2 * verse + 3) + 1.5, sr), sr };
+  }
+  // the words with their start times (seconds), for the demo's lyrics
+  const graceLines = () => GRACE_LINES.map(([b, text], k) => ({ t: GRACE.lead + (GRACE.intro + (k >> 2) * GRACE.verse + b) * GRACE.sb, text, brk: k === 4 }));
+
   function toWav(samples, sr) {
     const n = samples.length, buf = new ArrayBuffer(44 + n * 2), v = new DataView(buf);
     const w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
@@ -724,7 +756,7 @@ const MA = ((VOCAB) => {
     return buf;
   }
 
-  return { NAMES, levels, veryLevel, detectMeter, roman, groupSize, PLUS, CFG, P, profiles, analyze, synthDemo, render, toWav, liveProfiles, bestChord, acfPitch, decodeChords, scoreAll, barPhase,
+  return { NAMES, levels, veryLevel, detectMeter, roman, groupSize, PLUS, CFG, P, profiles, analyze, synthDemo, synthGrace, graceLines, render, toWav, liveProfiles, bestChord, acfPitch, decodeChords, scoreAll, barPhase,
            name, tones, baseOf, useFlats, mod12, SHARP, FLAT, QS, PAD, BASS, LEAD };
 })(typeof CHORD_VOCAB !== 'undefined' ? CHORD_VOCAB : require('../backend/app/chord_vocab.json'));
 if (typeof module !== 'undefined') module.exports = MA;

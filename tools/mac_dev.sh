@@ -5,6 +5,7 @@
 #   bash tools/mac_dev.sh bench   # PARALLEL_LYRICS=0 vs 1 on every song in tests/real (one process per run)
 #   bash tools/mac_dev.sh all     # all three
 #   bash tools/mac_dev.sh accuracy --label after --compare baseline   # key/BPM/chords/melody (tests/bench)
+#   bash tools/mac_dev.sh regress [--accept] [--lyrics]   # same results as before? short clips, ~2 min (tests/regress)
 # Everything stays in backend/data/ (gitignored): .venv is in backend/.venv, models in backend/data/models,
 # logs and results in backend/data/mac_logs/.
 set -u
@@ -67,6 +68,7 @@ test_all() {
   env_models; cd "$REPO"
   local fails=""
   echo "--- test_guards.py"; "$PY" tests/test_guards.py || fails="$fails test_guards"
+  echo "--- test_inbox.py"; "$PY" tests/test_inbox.py || fails="$fails test_inbox"
   if command -v node >/dev/null; then
     echo "--- make_wavs.js"; node tests/make_wavs.js || fails="$fails make_wavs"
     for t in js_test tuning_safety_test levels_test; do
@@ -148,8 +150,9 @@ case "${1:-all}" in
   test) test_all ;;
   bench) bench ;;
   accuracy) env_models; cd "$REPO" && "$PY" tests/bench/bench.py "${@:2}" || FAILS="$FAILS accuracy" ;;
+  regress) env_models; cd "$REPO" && "$PY" tests/regress/regress.py "${@:2}" || FAILS="$FAILS regress" ;;
   all) setup; test_all; bench ;;
-  *) echo "usage: bash tools/mac_dev.sh [setup|test|bench|all|accuracy [--label NAME] [--compare OLD]]"; exit 2 ;;
+  *) echo "usage: bash tools/mac_dev.sh [setup|test|bench|all|accuracy [--label NAME] [--compare OLD]|regress [--accept] [--lyrics]]"; exit 2 ;;
 esac
 echo "finished $(date +%H:%M:%S)"
 if [ -z "$FAILS" ]; then echo "ok $STAMP" > "$LOG/DONE"

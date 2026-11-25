@@ -219,7 +219,7 @@ $('#srcs').addEventListener('click', e => {
   const c = e.target.closest('.src'); if (c && c.dataset.id !== S.active) switchTo(c.dataset.id);
 });
 $('#srcs').addEventListener('keydown', e => { const c = e.target.closest('.src'); if (c && e.target === c && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); switchTo(c.dataset.id); } });
-$('#file').addEventListener('change', e => { const f = e.target.files[0]; if (f && /\.lyrichord$/i.test(f.name)) importSet(f); else addFile(f); e.target.value = ''; });
+$('#file').addEventListener('change', e => { const fs = [...e.target.files], f = fs[0]; e.target.value = ''; if (fs.length > 1) addFiles(fs); else if (f && /\.lyrichord$/i.test(f.name)) importSet(f); else addFile(f); });
 $('#setfile').addEventListener('change', async e => { for (const f of [...e.target.files]) await importSet(f); e.target.value = ''; });
 $('#xmlbtn').addEventListener('click', () => exportScore('xml').catch(err => { console.error(err); exHint('สร้างไฟล์ไม่สำเร็จ', true); }));
 $('#midbtn').addEventListener('click', () => exportScore('mid').catch(err => { console.error(err); exHint('สร้างไฟล์ไม่สำเร็จ', true); }));
@@ -234,13 +234,16 @@ $('#setview').addEventListener('click', setAction);
 $('#stagebtn').addEventListener('click', () => startStage(null));
 $('#helpbtn').addEventListener('click', () => startTour());
 $('#libq').addEventListener('input', e => { S.libQ = e.target.value; renderLibrary(); });
+$('#inboxrow').addEventListener('click', e => { if (e.target.closest('#inboxopen')) openInbox(); });
 $('#liblist').addEventListener('click', libAction);
 $('#adddemo').addEventListener('click', () => { const d = S.sources.find(s => s.kind === 'demo'); if (d) switchTo(d.id); else addDemo(); });
 $('#addmic').addEventListener('click', () => addLive('mic'));
 $('#addtab').addEventListener('click', () => addLive('tab'));
 document.addEventListener('dragover', e => e.preventDefault());
-document.addEventListener('drop', e => {
-  e.preventDefault(); const f = e.dataTransfer.files[0]; if (!f) return;
+document.addEventListener('drop', async e => {
+  e.preventDefault(); const fs = await droppedFiles(e.dataTransfer);  // several files or a folder: all of them, one after another
+  if (fs.length > 1) return addFiles(fs);
+  const f = fs[0]; if (!f) return;
   if (/\.lyrichord$/i.test(f.name)) importSet(f);
   else if (/\.(txt|docx)$/i.test(f.name)) { if (!S.lyPanel) setLyPanel(true); importLyricsFile(f); } else addFile(f);
 });
@@ -292,14 +295,16 @@ setLevel(S.level); setInst(S.inst); setDisp(S.disp); setDock(S.dock); setDockW(S
 $('#follow').setAttribute('aria-pressed', S.follow);
 setLibTab('songs');
 renderStatus();
-// Lyrichord Free: consent first, then the guide; the full app opens with the demo song
+// Lyrichord Free: consent first, then the guide. The full app opens straight to work (the guide is under "?")
 if (needConsent()) showConsent();
-else if (store.get('cl-tour') !== 'done') setTimeout(() => { if (tourAt < 0 && !STAGE.on) startTour(); }, 1800);
-if (EDITION !== 'free') addDemo(); else renderAll();
+else if (EDITION === 'free' && store.get('cl-tour') !== 'done') setTimeout(() => { if (tourAt < 0 && !STAGE.on) startTour(); }, 1800);
+// the songs that were open last time come back from the library (once the backend answers); otherwise the demo song
+const REOPEN = (() => { try { const o = JSON.parse(store.get('cl-open') || 'null'); return !!(o && o.ids && o.ids.length); } catch { return false; } })();
+if (EDITION !== 'free' && !REOPEN) addDemo(); else renderAll();
 $('#ver').textContent = 'v' + APP_VERSION;
 checkBackend().then(async h => {
   S.backend = h;
-  if (h && h.edition === 'free') document.body.classList.add('free');  // a free backend: the free look, whatever page it serves
+  if (h && h.edition === 'free') { document.body.classList.add('free'); document.body.classList.remove('navy'); }  // a free backend: the free look, whatever page it serves
   // a page and a server from different versions: say so plainly (usually an old app still installed or running)
   if (h && h.version !== APP_VERSION) {
     const w = document.createElement('p'); w.className = 'verwarn'; w.id = 'verwarn';
@@ -308,6 +313,7 @@ checkBackend().then(async h => {
   }
   if (/^https?:/.test(location.protocol)) { try { const r = await fetch('assets/vendor/pptxgen.bundle.js', { method: 'HEAD' }); S.pptLocal = r.ok; } catch { S.pptLocal = false; } }
   renderStatus();
+  if (REOPEN && !(await restoreOpen()) && EDITION !== 'free' && !S.sources.length) addDemo();
   loadLibrary();
   await loadOnline();
   if (new URLSearchParams(location.search).has('showlan')) openLan();
@@ -317,5 +323,5 @@ checkBackend().then(async h => {
   else if (S.backendErr === 'down') hint('ติดต่อหลังบ้านออนไลน์ไม่ได้ ใช้โหมดเบราว์เซอร์แทน (เปิด start-online บนคอมพิวเตอร์ แล้วใส่ที่อยู่ใหม่ที่ปุ่มสถานะมุมขวาบน)', true);
   if (h && !h.whisper) hint('หลังบ้านยังไม่มี Whisper: นำเข้าเนื้อร้องจากไฟล์ได้ตามปกติ โปรแกรมจะจัดจังหวะจากทำนองเสียงร้องแทน');
 });
-window.__app = { CFGS, setLang, T, S, switchTo, loadLibrary, openLib, setLevel, setInst, setLayout, setDisp, exportPDF, exportPPTX, importLyricsFile, cleanLyrics, A, musicXML, midiFile, startRec, stopRec, exportSet, importSet, addFile };
+window.__app = { CFGS, setLang, T, S, switchTo, loadLibrary, openLib, setLevel, setInst, setLayout, setDisp, exportPDF, exportPPTX, importLyricsFile, cleanLyrics, A, musicXML, midiFile, startRec, stopRec, exportSet, importSet, addFile, addFiles, restoreOpen, openCmdk, MA };
 }

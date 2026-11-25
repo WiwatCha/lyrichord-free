@@ -14,15 +14,19 @@ LONG = 32768  # input length x stride above which a 1-D convolution runs on the 
 
 
 def _cpu_for_long(cls) -> None:
+    """Such a layer runs on a CPU copy of itself, made once (moving its weights to the CPU and back for every
+    chunk took 1.6 s of a 4-minute song: 645 calls); the same arithmetic, so the same stems."""
+    import copy
+
     orig = cls.forward
 
     def forward(self, x, *a, **k):
         if x.device.type == "mps" and x.shape[-1] * max(1, self.stride[0]) > LONG:
-            self.to("cpu")
-            try:
-                return orig(self, x.to("cpu"), *a, **k).to("mps")
-            finally:
-                self.to("mps")
+            cpu = self.__dict__.get("_cpu_twin")
+            if cpu is None:
+                cpu = copy.deepcopy(self).to("cpu")
+                self.__dict__["_cpu_twin"] = cpu  # not a registered sub-module: .to() / state_dict leave it alone
+            return orig(cpu, x.to("cpu"), *a, **k).to("mps")
         return orig(self, x, *a, **k)
 
     cls.forward = forward

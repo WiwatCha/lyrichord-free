@@ -15,6 +15,7 @@ Thank you to everyone who made them.
 | RMVPE (Wei et al. 2023); weights from RVC-Project | sung melody | weights MIT (RVC-Project), original code Apache-2.0 | https://github.com/Dream-High/RMVPE · https://huggingface.co/lj1995/VoiceConversionWebUI |
 | Whisper small (OpenAI) via faster-whisper (SYSTRAN) | lyrics | MIT | https://github.com/openai/whisper · https://github.com/SYSTRAN/faster-whisper |
 | PaddleOCR PP-OCRv5 (Baidu) | reading lyrics / chords from pictures | Apache-2.0 | https://github.com/PaddlePaddle/PaddleOCR |
+| cloudflared (Cloudflare, Inc.), full edition only | online access from a phone (quick tunnel) | Apache-2.0 | https://github.com/cloudflare/cloudflared |
 
 
 **Not in Lyrichord Free:** the UVR DeEcho-DeReverb model (its licence is not stated clearly).

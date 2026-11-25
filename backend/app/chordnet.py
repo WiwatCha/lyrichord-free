@@ -70,11 +70,17 @@ def log_probs(feat: np.ndarray, large: bool) -> np.ndarray:
     return np.concatenate(out)[:T]
 
 
-def beat_log_probs(y: np.ndarray, sr: int, beats: np.ndarray, dur: float):
-    """Per-beat mean log-probabilities of both models: (majmin (B,25), large (B,170))."""
+def frame_log_probs(y: np.ndarray, sr: int) -> tuple[np.ndarray, np.ndarray]:
+    """Log-probabilities of both models per frame (no beats needed: the app works these out while Demucs runs)."""
     feat = features(y, sr)
-    lp_s, lp_l = log_probs(feat, False), log_probs(feat, True)
-    t = (np.arange(len(feat)) + 0.5) * FRAME
+    return log_probs(feat, False), log_probs(feat, True)
+
+
+def beat_log_probs(y: np.ndarray, sr: int, beats: np.ndarray, dur: float, frames=None):
+    """Per-beat mean log-probabilities of both models: (majmin (B,25), large (B,170)).
+    frames: frame_log_probs(y, sr) worked out before (the same numbers)."""
+    lp_s, lp_l = frames if frames is not None else frame_log_probs(y, sr)
+    t = (np.arange(len(lp_s)) + 0.5) * FRAME
     out_s, out_l = [], []
     for i, t0 in enumerate(beats):
         t1 = beats[i + 1] if i + 1 < len(beats) else min(dur, t0 + 0.6)

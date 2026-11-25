@@ -2,7 +2,7 @@
 // Simple mode keeps on screen only what most people use (add a song, library, key, chord level, play, stage mode);
 // everything else is one tap away in "More". Advanced mode (a switch in More) shows the full toolbar as before.
 function setPro(on) {
-  S.pro = !!on; store.set('cl-pro', S.pro ? '1' : '0');
+  S.pro = !!on; store.set('cl-pro2', S.pro ? '1' : '0');
   document.body.classList.toggle('simple', !S.pro);
   const c = $('#prochk'); if (c) c.checked = S.pro;
   if (S.pro) closeDrawer();
@@ -79,6 +79,16 @@ async function openLan() {
     <p class="hint">${T('ลิงก์มีรหัสเข้าใช้ อย่าส่งต่อให้คนนอกวง · ครั้งแรกคอมอาจถามว่าให้รับการเชื่อมต่อไหม ให้กดอนุญาต (Allow) · ผ่าน Wi-Fi แบบนี้ มือถือจะใช้ไมค์อัดเสียงไม่ได้ ส่วนอื่นใช้ได้ครบ')}</p>`;
   $('#docbody').innerHTML = body; $('#docclose').focus();
 }
+// ---- online (full edition): the phone reaches this Mac from anywhere through the app's own tunnel ----
+async function openOnline() {
+  $('#docTitle').textContent = 'ใช้บน iPhone / iPad จากที่ไหนก็ได้'; $('#docbody').innerHTML = `<p>กำลังโหลด…</p>`; $('#docdlg').hidden = false;
+  let j = null; try { const r = await fetch(api('online')); j = r.ok ? await r.json() : null; } catch {}
+  $('#docbody').innerHTML = j && j.link
+    ? `<ol><li>เปิดแอปบน Mac ไว้ และต่ออินเทอร์เน็ต</li><li>สแกน QR ด้วยกล้อง แล้วเปิดลิงก์ (iPhone: Safari · Android: Chrome)</li><li>เพิ่มไปยังหน้าจอโฮม ครั้งต่อไปแตะไอคอนได้เลย แม้ Mac จะได้ที่อยู่ใหม่</li></ol>
+      <div class="lanqr">${j.qr}<input readonly value="${esc(j.link)}" onclick="this.select()" aria-label="ลิงก์สำหรับมือถือ"></div><p class="hint">ลิงก์มีรหัสเข้าใช้ อย่าส่งต่อให้คนอื่น</p>`
+    : `<p>ยังไม่มีลิงก์ออนไลน์: เปิดหน้านี้จากแอป Lyrichord บน Mac ที่ต่ออินเทอร์เน็ตอยู่ แล้วลองใหม่</p>`;
+  $('#docclose').focus();
+}
 function openDoc(kind) {
   const [title, body] = docHTML(kind);
   $('#docTitle').textContent = title; $('#docbody').innerHTML = body; $('#docdlg').hidden = false; $('#docclose').focus();
@@ -103,6 +113,9 @@ $('#clang').addEventListener('click', e => { const b = e.target.closest('[data-l
 $('#addbtn').addEventListener('click', () => { if (S.pro) { $('#adds').scrollIntoView({ block: 'center', behavior: 'smooth' }); $('#file').click(); } else openAdd(); });
 $('#libbtn2').addEventListener('click', () => { S.libOpen = !S.libOpen; store.set('cl-libopen', S.libOpen ? '1' : '0'); if (S.libOpen) loadLibrary(); else renderLibrary(); });
 $('#lanitem').hidden = !/^(localhost|127\.|\[::1\])/.test(location.hostname);  // already on a phone
+$('#mobgrp').hidden = $('#lanitem').hidden;
+$('#onlinebtn').addEventListener('click', () => { closeDrawer(); openOnline(); });
+$('#lanbtn2').addEventListener('click', () => { closeDrawer(); openLan(); });
 $('#addclose').addEventListener('click', closeAdd);
 $('#addback').addEventListener('click', closeAdd);
 // choosing a way in closes the window (the file picker opens on top of it)

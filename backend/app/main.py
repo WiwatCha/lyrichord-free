@@ -23,6 +23,7 @@ from pydantic import BaseModel
 
 from . import chordnet as CN
 from . import dereverb as DR
+from . import inbox as INBOX
 from . import library as LIB
 from . import ocr as OCR
 from . import pipeline as PL
@@ -147,6 +148,19 @@ OVERLAP = os.environ.get("OVERLAP_LYRICS", "auto") == "1" or (os.environ.get("OV
 SHEET_TURN, LYRICS_TURN = threading.Lock(), threading.Lock()
 POOL = ThreadPoolExecutor(max_workers=int(os.environ.get("WORKERS", 4 if OVERLAP else 1)))
 log.info("lyrics overlap the next song's sheet: %s (RAM %.0f GB)", OVERLAP, _ram_gb())
+
+
+def _warm_up() -> None:
+    """Models loaded while the app waits (~5 s): the first song is as quick as the next ones (60 s clip 16.7 -> 13.5 s).
+    It holds the sheet turn, so a song added meanwhile waits for it instead of loading the same models twice."""
+    with SHEET_TURN:
+        t = time.time()
+        took = PL.warm_up()
+        log.info("warm-up %.1f s %s", time.time() - t, took)
+
+
+if os.environ.get("WARMUP", "1") != "0":
+    threading.Thread(target=_warm_up, name="warm-up", daemon=True).start()
 
 
 def _prune() -> None:
@@ -367,7 +381,17 @@ async def create_upload(file: UploadFile = File(...)):
                 raise HTTPException(413, f"ไฟล์ใหญ่เกิน {MAX_UPLOAD_MB} MB")
             f.write(chunk)
     job.sha = sha.hexdigest()
-    # the very same file was analysed before: open it from the library (with its edits) instead of again
+    old = _same_in_library(job)
+    if old:
+        log.info("upload %s = library song %s", name, old.id)
+        return {**old.public(), "from_library": True}
+    POOL.submit(_run, job, None, dest)
+    return job.public()
+
+
+def _same_in_library(job: Job) -> Job | None:
+    """The very same file was analysed before: that library song (with its edits) instead of a new analysis;
+    the new job is dropped."""
     for d, s in LIB.all_songs(DATA):
         if s.get("sha") == job.sha and d.name != job.id:
             old = _job(d.name)
@@ -375,10 +399,62 @@ async def create_upload(file: UploadFile = File(...)):
                 shutil.rmtree(DATA / job.id, ignore_errors=True)
                 with LOCK:
                     JOBS.pop(job.id, None)
-                log.info("upload %s = library song %s", name, old.id)
-                return {**old.public(), "from_library": True}
+                return old
+    return None
+
+
+# ---- watched folder (Lyrichord Inbox): files put there are analysed into the library on their own
+def _inbox_take(path: Path, title: str) -> tuple[str, bool]:
+    if path.stat().st_size > MAX_UPLOAD_MB << 20:
+        raise ValueError(f"larger than {MAX_UPLOAD_MB} MB")
+    job = _new_job("upload", title)
+    dest = DATA / job.id / ("upload" + path.suffix.lower())
+    sha = hashlib.sha256()
+    with path.open("rb") as f, dest.open("wb") as out:
+        while chunk := f.read(1 << 20):
+            sha.update(chunk)
+            out.write(chunk)
+    job.sha = sha.hexdigest()
+    old = _same_in_library(job)
+    if old:
+        return old.id, False
     POOL.submit(_run, job, None, dest)
-    return job.public()
+    return job.id, True
+
+
+WATCH = INBOX.Watcher(INBOX.folder(), _inbox_take).start() if INBOX.folder() else None
+
+
+@app.get("/api/inbox")
+def inbox(request: Request):
+    """The watched folder: where it is (this computer only) and the songs it took lately, with their progress."""
+    if WATCH is None:
+        return {"on": False}
+    rows = []
+    for t in WATCH.taken[-20:]:
+        j = _job(t["job"])
+        rows.append({**t, "title": j.title if j else t["file"], "status": j.status if j else "gone",
+                     "stage": j.stage if j else "", "progress": round(j.progress, 3) if j else 0,
+                     "lyrics_pending": bool(j and j.lyrics_pending)})
+    return {"on": True, "name": WATCH.root.name, "folder": "" if remote(request) else str(WATCH.root), "taken": rows}
+
+
+@app.post("/api/inbox/open")
+def inbox_open(request: Request):
+    """Show the folder in Finder / Explorer (only from this computer: a phone has no use for it)."""
+    if WATCH is None or remote(request):
+        raise HTTPException(404, "ไม่มีโฟลเดอร์รับเพลง")
+    import subprocess
+    import sys
+
+    WATCH.root.mkdir(parents=True, exist_ok=True)
+    if sys.platform == "darwin":
+        subprocess.Popen(["open", str(WATCH.root)])
+    elif os.name == "nt":
+        os.startfile(str(WATCH.root))  # noqa: S606 (our own folder)
+    else:
+        subprocess.Popen(["xdg-open", str(WATCH.root)])
+    return {"ok": True}
 
 
 class ReanalyzeIn(BaseModel):

@@ -69,5 +69,12 @@ if not LITE:
         Separator.check_ffmpeg_installed = lambda self: None  # WAV via soundfile, no ffmpeg needed
         Separator(model_file_dir=str(M / "uvr"), output_dir=str(M), log_level=40).load_model("UVR-DeEcho-DeReverb.pth")
 
+# smaller on disk with the same results: Whisper stored as int8, as the app loads it (desktop/slim_models.py)
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import slim_models  # noqa: E402
+
+for line in slim_models.slim(M):
+    print(line, flush=True)
+
 total = sum(p.stat().st_size for p in M.rglob("*") if p.is_file())
 print(f"models ready: {total / 1e6:.0f} MB in {M}", flush=True)

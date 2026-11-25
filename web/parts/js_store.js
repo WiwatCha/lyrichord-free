@@ -141,6 +141,7 @@ async function loadLibrary() {
   clearTimeout(loadLibrary.t);
   loadLibrary.t = setTimeout(async () => {
     try { const r = await fetch(api('library')); if (!r.ok) throw 0; S.lib = (await r.json()).songs || []; } catch { S.lib = null; }
+    if (S.lib && !pollInbox.on) { pollInbox.on = true; pollInbox(); }
     if (S.lib && S.lib.length && store.get('cl-libopen') !== '0' && !loadLibrary.shown) { loadLibrary.shown = true; S.libOpen = true; }
     renderLibrary();
   }, 300);
@@ -157,6 +158,7 @@ function renderLibrary() {
   btn.setAttribute('aria-expanded', !!S.libOpen);
   pan.hidden = !(S.lib && S.libOpen);
   if (pan.hidden) return;
+  renderInbox();
   if (S.libTab === 'sets') { renderSets(); return; }
   const q = (S.libQ || '').trim().toLowerCase(), open = new Set(S.sources.filter(s => s.jobId).map(s => s.jobId));
   const rows = S.lib.filter(x => !q || (x.title || '').toLowerCase().includes(q));
@@ -169,6 +171,41 @@ function renderLibrary() {
         <div class="lmain"><b title="${esc(x.title)}">${esc(x.title)}</b><small>${T('คีย์')} ${key} · ${fmt(x.duration)} · ${x.bpm || '—'} BPM · ${when(x.updated)}</small><span class="ltags">${tags}</span></div>
         <div class="lacts"><button class="sbtn sm pri" data-la="open">${open.has(x.id) ? T('ไปที่เพลง') : T('เปิด')}</button><button class="zb" data-la="ren" aria-label="${T('เปลี่ยนชื่อ')}" title="${T('เปลี่ยนชื่อ')}">✎</button><button class="zb" data-la="del" aria-label="${T('ลบจากคลัง')}" title="${T('ลบจากคลัง')}">🗑</button></div></div>`;
     }).join('');
+}
+// ================= watched folder (Lyrichord Inbox on the Mac): songs put there are analysed into the library =================
+async function pollInbox() {
+  clearTimeout(pollInbox.t);
+  let j = null;
+  if (S.backend) { try { const r = await fetch(api('inbox')); if (r.ok) j = await r.json(); } catch { } }
+  const was = pollInbox.seen, seen = {};
+  let busy = 0, fresh = false;
+  for (const t of (j && j.on && j.taken) || []) {
+    const st = !t.new ? 'lib' : t.status === 'done' ? 'done' : t.status;
+    seen[t.job + t.at] = st;
+    if (st === 'queued' || st === 'running') busy++;
+    if (!was) continue;  // first look: what was taken before this page opened is not news
+    const old = was[t.job + t.at];
+    if (old === st) continue;
+    if (st === 'lib') hint(`${T('โฟลเดอร์รับเพลง')}: ${t.title} ${T('มีในคลังเพลงอยู่แล้ว')}`);
+    else if (st === 'done') { hint(`${T('โฟลเดอร์รับเพลง')}: ${t.title} ${T('เข้าคลังเพลงแล้ว')}`); fresh = true; }
+    else if (st === 'error') hint(`${T('โฟลเดอร์รับเพลง')}: ${t.title} ${T('แกะไม่สำเร็จ')}`, true);
+    else if (!old) hint(`${T('โฟลเดอร์รับเพลง')}: ${T('ได้รับ')} ${t.title}`);
+  }
+  pollInbox.seen = seen;
+  S.inbox = j && j.on ? { ...j, busy, now: ((j.taken || []).find(t => t.status === 'running') || {}) } : null;
+  if (fresh) loadLibrary(); else renderInbox();
+  pollInbox.t = setTimeout(pollInbox, busy ? 4000 : 12000);
+}
+function renderInbox() {
+  const el = $('#inboxrow'); if (!el) return;
+  const x = S.inbox; el.hidden = !x; if (!x) return;
+  const now = x.now && x.now.title ? ` · ${T('กำลังแกะ')} ${esc(x.now.title)} ${Math.round((x.now.progress || 0) * 100)}%` + (x.busy > 1 ? ` · ${T('รอคิว')} ${x.busy - 1}` : '') : '';
+  el.innerHTML = `<span>📥 <b>${T('โฟลเดอร์รับเพลง')}</b>: ${T('วางไฟล์เพลงลงใน')} “${esc(x.name)}” ${T('แล้วแอปจะแกะเก็บเข้าคลังเอง')}${now}</span>`
+    + (x.folder ? `<button class="sbtn sm" id="inboxopen" title="${esc(x.folder)}">${T('เปิดโฟลเดอร์')}</button>` : '');
+}
+async function openInbox() {
+  try { const r = await fetch(api('inbox/open'), { method: 'POST' }); if (!r.ok) throw 0; }
+  catch { hint('เปิดโฟลเดอร์รับเพลงไม่สำเร็จ', true); }
 }
 function openLib(id) {
   const ex = S.sources.find(s => s.jobId === id); if (ex) { switchTo(ex.id); return; }

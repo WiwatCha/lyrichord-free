@@ -384,6 +384,7 @@ body.lay-lr.d-hide .vsplit{pointer-events:none}body.lay-lr.d-hide .vsplit i{visi
 .helppop button{min-height:44px;text-align:left;padding:0 14px;border:0;border-radius:10px;background:transparent;font-size:15px}
 .helppop button:hover,.helppop button:focus-visible{background:var(--soft)}
 .addhead,.addnote,.drawhead,.drawonly{display:none}
+body.free .fullonly{display:none!important}
 .tbmore span{font-weight:500}
 body.simple .adds{display:none}
 body.simple.add-open .adds{display:grid;position:fixed;z-index:40;left:50%;top:50%;transform:translate(-50%,-50%);width:min(720px,calc(100vw - 24px));max-height:calc(100vh - 24px);overflow:auto;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:20px;border-radius:24px;background:var(--card2);border:1px solid var(--glassb);box-shadow:0 30px 70px rgb(0 0 0/.55)}
@@ -495,6 +496,8 @@ body.stage-on .ihead,body.stage-on .ipill{font-size:calc(var(--stagefs) * .55)}
 .k-lib{--k:#f5b942}
 .adds button.k-lib b{font-family:var(--fd);font-size:13px;padding:1px 8px;border-radius:999px;background:var(--soft);color:var(--ink)}
 .adds button.k-lib[aria-expanded=true]{border-color:var(--k);box-shadow:0 0 0 1px var(--k)}
+.inboxrow{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;font-size:13px;color:var(--mut);padding:2px}
+.inboxrow b{color:inherit;font-weight:650}
 .libpanel{border:1px solid var(--glassb);border-radius:18px;padding:12px;background:rgb(21 25 34/.7);box-shadow:var(--glassh);display:grid;gap:10px}
 .libhead{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center}
 .libhead input{margin-left:auto;flex:0 1 260px;min-height:38px;border-radius:999px;border:1px solid var(--glassb);background:var(--glass);padding:0 14px;font-size:16px}
@@ -575,6 +578,70 @@ body.stage-on .ihead,body.stage-on .ipill{font-size:calc(var(--stagefs) * .55)}
   body.p-play .fig{display:block;height:var(--playh,55vh)}
 }
 @media(max-width:400px){.nowbar #nexttxt{display:none}.nowbar .diag{width:118px}.nowbar .big{width:78px}}
+/* ===== Lyrichord (full edition): navy premium theme. Navy base, turquoise for "do / now playing", gold for the chord now,
+   export and stage mode. build.py puts class "navy" on <body> for the full edition; Lyrichord Free keeps graphite + coral. ===== */
+body.navy{--bg:#0a1730;--card:#12264a;--card2:#183059;--ink:#eef4ff;--mut:#a9b8d8;--dim:#7286ad;--line:#25406b;--soft:#16305a;--acc:#2ed3c6;--accink:#8fe9e1;--net:#7fd8ff;
+  --gold:#f2c46d;--goldg:linear-gradient(180deg,#f7d797,#e9b44c);--goldink:#1a1405;--turg:linear-gradient(180deg,#4fe3d6,#20b8ac);--turink:#04201e;--head:#2ed3c6;--blk:#1b2c4d;
+  --glass:rgb(160 190 255/.07);--glassb:rgb(160 190 255/.2);--glassh:inset 0 1px 0 rgb(200 220 255/.18),inset 0 -1px 0 rgb(200 220 255/.04);
+  background:radial-gradient(1100px 620px at 85% -12%,#173a73 0,transparent 62%),radial-gradient(900px 500px at -10% 110%,#0f3346 0,transparent 60%),linear-gradient(180deg,#0e2347 0,var(--bg) 55%);background-attachment:fixed}
+body.navy .verwarn{background:rgb(46 211 198/.1)}
+body.navy .tb{background:rgb(14 35 71/.62)}
+body.navy.simple.tb-open .tb{background:rgb(14 35 71/.97)}
+body.navy .bottom{background:rgb(10 23 48/.78)}
+body.navy.lay-lr #dock,body.navy .libpanel{background:rgb(18 38 74/.72)}
+body.navy.stage-on .stagebar{background:rgb(10 23 48/.94)}
+body.navy .seg button[aria-pressed=true],body.navy .seg.hot button[aria-pressed=true],body.navy .sbtn[aria-pressed=true]{background:rgb(46 211 198/.2);color:var(--ink);border-color:rgb(46 211 198/.55);box-shadow:inset 0 0 0 1px rgb(46 211 198/.55)}
+body.navy .sbtn:hover,body.navy .zb:hover{background:rgb(160 190 255/.14);border-color:rgb(160 190 255/.32)}
+body.navy .sbtn.pri,body.navy .hbtn.pri,body.navy .play{background:var(--turg);color:var(--turink);border-color:rgb(255 255 255/.25)}
+body.navy .play{box-shadow:0 6px 22px rgb(46 211 198/.35)}
+body.navy #expbtn,body.navy #stagebtn,body.navy .stagebar .sbtn.pri{background:var(--goldg);color:var(--goldink);border-color:rgb(255 236 190/.5)}
+body.navy #tbmore[aria-expanded=true]{background:var(--acc);color:var(--turink);border-color:var(--acc)}
+body.navy .nowbar .big:not(.nc){background:var(--goldg);color:var(--goldink);box-shadow:0 6px 24px rgb(242 196 109/.3)}
+body.navy .nowbar .big.mi:not(.nc){background:repeating-linear-gradient(135deg,#f5cf83 0 12px,#e7b351 12px 24px)}
+body.navy h1 span,body.navy .linkbtn{color:var(--acc)}
+body.navy .bars.loop{background:rgb(46 211 198/.1)}
+body.navy .ll.sing{box-shadow:inset 3px 0 0 rgb(46 211 198/.45)}
+body.navy .bar.bar-sing .ly{border-top-color:rgb(46 211 198/.45)}
+body.navy .le.on{background:rgb(46 211 198/.08)}
+body.navy.simple.add-open .adds{background:linear-gradient(180deg,#183059,#12264a)}
+body.navy.simple.add-open .adds .k-file{border-color:rgb(46 211 198/.6);background:rgb(46 211 198/.08)}
+body.navy.simple.add-open .addhead{order:-2}
+body.navy .welcome .wic{background:rgb(46 211 198/.14);color:var(--accink)}
+body.navy .ptabs button[aria-pressed=true]{background:rgb(46 211 198/.2)}
+body.navy .lsb i{background:linear-gradient(90deg,#2ed3c6,#8fe9e1)}
+body.navy .cpts li::before{background:rgb(242 196 109/.18);color:var(--gold)}
+/* both editions keep display mode, chord shapes + capo, key and export on the toolbar; the full edition also keeps tune, ÷2/×2 and the status */
+body.simple .tb .tbin>.grp.keepn{display:flex}
+body.simple .tb .tbin>.expw{display:block}
+body.navy.simple #tunebtn:not([hidden]),body.navy.simple #bpmhalf:not([hidden]),body.navy.simple #bpmdbl:not([hidden]){display:inline-flex!important}
+body.navy.simple #sttxt{display:inline!important}
+@media(max-width:1180px){body.simple .tb .tbin>.grp.keepn.tbx{display:none}body.simple.tb-open .tb .tbin>.grp.keepn.tbx{display:flex}}
+@media(max-width:900px){body.simple .tb .tbin>.expw{display:none}body.simple.tb-open .tb .tbin>.expw{display:block}}
+@media(max-width:900px){body.simple .tb .tbin{display:flex}body.simple:not(.tb-open) .tb .tbin>.grp.keepn{display:none}}
+@media(max-width:700px){body.navy.simple #sttxt{display:none!important}body.simple:not(.tb-open) .tb .tbin>.grp:has(#lvseg){display:none}body.simple:not(.tb-open) .tb .tbin{justify-content:center}}
+/* ===== quick start: ⌘K search, many files / a folder at once ===== */
+.k-folder{--k:#5fb3ff}
+.addtip{display:none}
+body.simple.add-open .addtip{display:block;grid-column:1/-1;margin:0;font-size:13px;color:var(--mut)}
+.cmdk{position:fixed;inset:0;z-index:80;background:rgb(0 0 0/.5);display:flex;justify-content:center;align-items:flex-start;padding:12vh 16px 16px}
+.cmdbox{width:min(640px,100%);max-height:72vh;display:flex;flex-direction:column;border-radius:20px;background:var(--card2);border:1px solid var(--glassb);box-shadow:0 30px 70px rgb(0 0 0/.55);overflow:hidden}
+.cmdhead{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--line)}
+.cmdhead>svg{width:20px;height:20px;color:var(--mut);flex:none}
+.cmdhead input{flex:1;min-height:44px;border:0;background:transparent;font-size:18px}
+.cmdhead input:focus-visible{outline:none}
+kbd{font:600 11px var(--ft);padding:2px 7px;border-radius:6px;border:1px solid var(--line);background:var(--soft);color:var(--mut);white-space:nowrap;flex:none}
+.cmdl{overflow:auto;padding:6px}
+.cmdg{margin:10px 10px 4px;font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--mut)}
+.cmdi{width:100%;display:flex;align-items:center;gap:12px;min-height:48px;padding:6px 10px;border:0;border-radius:12px;background:transparent;text-align:left}
+.cmdi:hover{background:rgb(255 255 255/.05)}
+.cmdi.on{background:rgb(255 255 255/.09);box-shadow:inset 3px 0 0 var(--acc)}
+.cmdi .ic{width:30px;height:30px;border-radius:9px}.cmdi .ic svg{width:16px;height:16px}
+.cmdic{width:30px;flex:none;text-align:center;color:var(--acc);font-weight:700;font-size:18px}
+.cmdt{flex:1;display:grid}.cmdt b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cmdt small{font-size:12px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmdnone{padding:14px}
+.cmdfoot{margin:0;padding:8px 16px;border-top:1px solid var(--line);font-size:12px;color:var(--mut)}
+body.navy .cmdi.on{background:rgb(46 211 198/.12)}
+@media(max-width:700px){.cmdk{padding-top:8px}.cmdfoot{display:none}#cmdbtn{display:none}.adds .k-folder{display:none!important}}  /* phones pick files, not folders */
 </style>
 </head>
 <body class="v-split">
@@ -582,24 +649,28 @@ body.stage-on .ihead,body.stage-on .ipill{font-size:calc(var(--stagefs) * .55)}
 <div class="stagebar" id="stagebar" role="toolbar" aria-label="โหมดเวที"></div>
 <header>
   <div><h1>Lyri<span>chord</span> <em class="edchip" id="edchip" hidden>Free</em></h1><p class="sub">แกะคอร์ด ทำนอง และเนื้อร้อง แล้วเล่นตามไปพร้อมเพลง <span class="ver" id="ver"></span></p></div>
-  <div style="display:flex;gap:8px;align-items:center;position:relative"><button class="hbtn pri" id="addbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>เพิ่มเพลง</span></button><button class="hbtn" id="libbtn2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 5h16M4 12h16M4 19h10"/></svg><span>คลังเพลง</span></button><button class="stbtn helpbtn" id="helpbtn" aria-label="วิธีใช้และข้อมูล" title="วิธีใช้และข้อมูล" aria-expanded="false">?</button><div class="helppop" id="helppop" hidden role="menu"><button role="menuitem" data-help="tour">วิธีใช้ (ทัวร์ 1 นาที)</button><button role="menuitem" data-help="lan" id="lanitem">ใช้บนมือถือ / iPad (Wi-Fi เดียวกัน)</button><button role="menuitem" data-help="terms">เงื่อนไขการใช้งานและลิขสิทธิ์</button><button role="menuitem" data-help="privacy">ความเป็นส่วนตัว</button><button role="menuitem" data-help="credits">เครดิตซอฟต์แวร์และไลเซนส์</button><button role="menuitem" data-help="about">เกี่ยวกับแอปนี้</button></div><div class="seg" id="langseg" role="group" aria-label="ภาษา"><button data-lang="th">ไทย</button><button data-lang="en">EN</button></div><button class="stbtn" id="stbtn" aria-expanded="false"><span class="dot" id="stdot"></span><span id="sttxt">กำลังตรวจสถานะ…</span></button></div>
+  <div style="display:flex;gap:8px;align-items:center;position:relative"><button class="hbtn pri" id="addbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>เพิ่มเพลง</span></button><button class="hbtn" id="libbtn2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 5h16M4 12h16M4 19h10"/></svg><span>คลังเพลง</span></button><button class="stbtn helpbtn" id="cmdbtn" aria-label="ค้นหาเพลงหรือคำสั่ง (⌘K)" title="ค้นหาเพลงหรือคำสั่ง (⌘K)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button><button class="stbtn helpbtn" id="helpbtn" aria-label="วิธีใช้และข้อมูล" title="วิธีใช้และข้อมูล" aria-expanded="false">?</button><div class="helppop" id="helppop" hidden role="menu"><button role="menuitem" data-help="tour">วิธีใช้ (ทัวร์ 1 นาที)</button><button role="menuitem" data-help="lan" id="lanitem">ใช้บนมือถือ / iPad (Wi-Fi เดียวกัน)</button><button role="menuitem" data-help="terms">เงื่อนไขการใช้งานและลิขสิทธิ์</button><button role="menuitem" data-help="privacy">ความเป็นส่วนตัว</button><button role="menuitem" data-help="credits">เครดิตซอฟต์แวร์และไลเซนส์</button><button role="menuitem" data-help="about">เกี่ยวกับแอปนี้</button></div><div class="seg" id="langseg" role="group" aria-label="ภาษา"><button data-lang="th">ไทย</button><button data-lang="en">EN</button></div><button class="stbtn" id="stbtn" aria-expanded="false"><span class="dot" id="stdot"></span><span id="sttxt">กำลังตรวจสถานะ…</span></button></div>
 </header>
 <div class="stpop" id="stpop" hidden role="dialog" aria-label="สถานะการทำงาน"></div>
+<div class="cmdk" id="cmdk" hidden role="dialog" aria-modal="true" aria-label="ค้นหาเพลงหรือคำสั่ง"><div class="cmdbox"><div class="cmdhead"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="cmdq" type="search" autocomplete="off" placeholder="พิมพ์ชื่อเพลง หรือสิ่งที่อยากทำ…" aria-label="ค้นหาเพลงหรือคำสั่ง" aria-controls="cmdl"><kbd>Esc</kbd></div><div class="cmdl" id="cmdl" role="listbox" aria-label="ผลการค้นหา"></div><p class="cmdfoot">↑↓ เลือก · Enter ทำเลย · ⌘K / Ctrl+K เปิด-ปิด · Space เล่น/หยุด · ⌘Z ย้อนกลับ</p></div></div>
 
 <section class="rack" aria-label="แหล่งเสียง">
   <div class="addback" id="addback" hidden></div>
   <div class="adds" id="adds" role="dialog" aria-label="เพิ่มเพลง">
     <div class="addhead"><strong>เพิ่มเพลง</strong><button class="zb" id="addclose" aria-label="ปิด">✕</button></div>
-    <label class="k-file"><span class="dotk"></span>เลือกไฟล์เพลง<input id="file" type="file" accept="audio/*,video/mp4,video/webm"></label>
+    <label class="k-file"><span class="dotk"></span>เลือกไฟล์เพลง<input id="file" type="file" accept="audio/*,video/mp4,video/webm" multiple></label>
     <button class="k-lib" id="libbtn" aria-expanded="false" hidden><span class="dotk"></span>คลังเพลง <b id="libn"></b></button>
     <button class="k-mic" id="addmic"><span class="dotk"></span>ไมค์ (สด · อัดเสียง)</button>
     <button class="k-tab" id="addtab"><span class="dotk"></span>เสียงจากแท็บ (สด)</button>
     <button class="k-demo" id="adddemo"><span class="dotk"></span>เพลงตัวอย่าง</button>
+    <label class="k-folder" title="แกะทุกเพลงในโฟลเดอร์ ต่อกันเอง"><span class="dotk"></span>ทั้งโฟลเดอร์<input id="folder" type="file" webkitdirectory multiple></label>
     <label class="k-set" title="ไฟล์ .lyrichord ที่บันทึกจากเครื่องไหนก็ได้"><span class="dotk"></span>เปิดชุดเพลง<input id="setfile" type="file" multiple></label>
     <p class="addnote">ใช้กับเพลงที่คุณมีสิทธิ์ใช้ เช่น เพลงที่ซื้อ เพลงของคริสตจักร หรือเพื่อฝึกซ้อมส่วนตัว เพลงจะถูกแกะในเครื่องนี้เท่านั้น</p>
+    <p class="addtip">เคล็ดลับ: เลือกหลายไฟล์ หรือลากทั้งโฟลเดอร์มาวางได้ · ⌘K (Ctrl+K) ค้นเพลงหรือคำสั่งได้จากทุกหน้า</p>
   </div>
   <div class="libpanel" id="libpanel" hidden>
     <div class="libhead"><div class="seg" id="libtabs" role="group" aria-label="คลังเพลง"><button data-lt="songs">เพลงทั้งหมด</button><button data-lt="sets">เซ็ตเพลง</button></div><span class="hint">เพลงที่แกะแล้วเก็บไว้ใน Mac พร้อมที่แก้ เปิดได้ทันทีจากทุกเครื่อง</span><input id="libq" type="search" placeholder="ค้นหาชื่อเพลง…" aria-label="ค้นหาชื่อเพลง"></div>
+    <div class="inboxrow" id="inboxrow" hidden></div>
     <div class="liblist" id="liblist"></div>
     <div id="setview" hidden></div>
   </div>
@@ -617,16 +688,16 @@ body.stage-on .ihead,body.stage-on .ipill{font-size:calc(var(--stagefs) * .55)}
   <div class="drawback" id="drawback" hidden></div>
   <div class="tbin" id="tbin">
     <div class="drawhead"><strong>เพิ่มเติม</strong><button class="zb" id="drawclose" aria-label="ปิด">✕</button></div>
-    <div class="grp"><span class="lb">แผ่นโน้ต</span><div class="seg hot" id="dmseg"><button data-dm="lyric">อ่านโน้ต</button><button data-dm="chord">มาตรฐาน</button></div></div>
+    <div class="grp keepn"><span class="lb">แผ่นโน้ต</span><div class="seg hot" id="dmseg"><button data-dm="lyric">อ่านโน้ต</button><button data-dm="chord">มาตรฐาน</button></div></div>
     <div class="grp keep"><span class="lb">ระดับคอร์ด</span><div class="seg" id="lvseg"><button data-lv="very">พื้นฐาน</button><button data-lv="plus">มาตรฐาน</button><button data-lv="advance">ละเอียด</button></div></div>
-    <div class="grp tbx"><span class="lb">รูปคอร์ด</span><div class="seg" id="inseg"><button data-in="piano">เปียโน</button><button data-in="guitar">กีตาร์</button></div><select class="sel" id="capo" aria-label="คาโป้" title="คาโป้ (กีตาร์)" hidden></select></div>
+    <div class="grp tbx keepn"><span class="lb">รูปคอร์ด</span><div class="seg" id="inseg"><button data-in="piano">เปียโน</button><button data-in="guitar">กีตาร์</button></div><select class="sel" id="capo" aria-label="คาโป้" title="คาโป้ (กีตาร์)" hidden></select></div>
     <div class="grp keep"><span class="lb">คีย์</span><button class="sbtn sm" id="trd" aria-label="ลดคีย์">−</button><span class="keyv" id="keyv">—<small>เดิม</small></span><button class="sbtn sm" id="tru" aria-label="เพิ่มคีย์">+</button></div>
     <div class="grp tbx"><span class="lb">อัตราจังหวะ</span><select class="sel" id="meter" aria-label="Time signature"><option value="4">4/4</option><option value="3">3/4</option><option value="6">6/8</option><option value="2">2/4</option></select><button class="sbtn sm" id="phl" aria-label="เลื่อนจุดเริ่มห้องไปซ้าย" title="เลื่อนจุดเริ่มห้อง">◀</button><button class="sbtn sm" id="phr" aria-label="เลื่อนจุดเริ่มห้องไปขวา" title="เลื่อนจุดเริ่มห้อง">▶</button></div>
     <span class="tbsp"></span>
     <button class="sbtn sm" id="undo" disabled title="ย้อนกลับ (⌘Z / Ctrl+Z)" aria-label="ย้อนกลับ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button><button class="sbtn sm" id="redo" disabled title="ทำซ้ำ (⇧⌘Z / Ctrl+Y)" aria-label="ทำซ้ำ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
     <button class="sbtn tbx" id="lybtn" aria-pressed="false">เนื้อร้อง</button>
     <button class="sbtn tbx" id="follow" aria-pressed="true">เลื่อนตามเพลง</button>
-    <div style="position:relative"><button class="sbtn pri" id="expbtn" aria-expanded="false">ส่งออก</button>
+    <div class="expw" style="position:relative"><button class="sbtn pri" id="expbtn" aria-expanded="false">ส่งออก</button>
       <div class="expop" id="expop" hidden>
         <strong>ส่งออก lead sheet</strong>
         <div><p class="lab">แบบ</p><div class="seg" id="exmode"><button data-ex="chord">เน้นคอร์ด</button><button data-ex="lyric">เน้นเนื้อร้อง</button></div></div>
@@ -650,6 +721,7 @@ body.stage-on .ihead,body.stage-on .ipill{font-size:calc(var(--stagefs) * .55)}
       </div>
     </div>
     <div class="grp drawonly"><span class="lb">เล่นและซ้อม</span><button class="sbtn" id="lanebtn" aria-pressed="false">แถบเล่นตามเพลง</button></div>
+    <div class="grp drawonly" id="mobgrp"><span class="lb">ใช้จากมือถือ</span><button class="sbtn fullonly" id="onlinebtn">นอกบ้าน ผ่านอินเทอร์เน็ต (QR)</button><button class="sbtn" id="lanbtn2">ในวง ใช้ Wi-Fi เดียวกัน (QR)</button></div>
     <div class="grp drawonly prosw"><span class="lb">หน้าตา</span><label class="chk prochk"><input type="checkbox" id="prochk"> โหมดขั้นสูง: แสดงเครื่องมือทั้งหมดบนหน้าจอ</label></div>
   </div>
 </div>

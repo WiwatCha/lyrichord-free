@@ -32,8 +32,10 @@ def api():
     import os; os.environ["DATA_DIR"] = tempfile.mkdtemp()
     from fastapi.testclient import TestClient
     from app.main import app
-    c = TestClient(app)
+    c = TestClient(app, client=("127.0.0.1", 50000))  # the app opened on this computer (another device needs the key)
     assert c.get("/api/health").json()["ok"]
+    far = TestClient(app, client=("192.168.1.20", 50000))  # a phone on the Wi-Fi without the key
+    assert far.get("/api/library").status_code == 401 and far.get("/api/health").status_code == 200
     j = c.post("/api/jobs/upload", files={"file": ("demo.wav", (HERE / "demo.wav").open("rb"), "audio/wav")}).json()
     for _ in range(240):
         j = c.get(f"/api/jobs/{j['id']}").json()

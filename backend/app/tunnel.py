@@ -33,7 +33,11 @@ def pages_url() -> str:
 
 
 def find_cloudflared() -> str | None:
-    """On PATH, or where Homebrew / the Windows installer put it (an app opened from Finder has a short PATH)."""
+    """The copy that comes with the app (LYRICORD_CLOUDFLARED, set by the launcher), else on PATH, else where
+    Homebrew / the Windows installer put it (an app opened from Finder has a short PATH)."""
+    own = os.environ.get("LYRICORD_CLOUDFLARED", "")
+    if own and Path(own).exists():
+        return own
     exe = "cloudflared.exe" if sys.platform == "win32" else "cloudflared"
     found = shutil.which(exe)
     if found:

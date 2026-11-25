@@ -71,18 +71,42 @@ check("empty transcript does not win", PL._pick_score(looping) > PL._pick_score(
 
 import os
 
+# one tempo for the whole song: a chorus counted double (busy drums) goes back to the song's tempo
+grid = np.arange(0, 300, 0.88)  # 68 BPM; the model adds a beat between each pair from 90 s to 180 s
+song_b = np.sort(np.concatenate([grid, (grid[:-1] + 0.44)[(grid[:-1] > 90) & (grid[:-1] < 180)]]))
+fixed = PL.steady_octave(song_b)
+g = np.diff(fixed)
+check("double-counted chorus back to one tempo", len(song_b) > len(grid) and len(fixed) == len(grid) and g.min() > 0.8 and g.max() < 0.96,
+      (len(song_b), len(fixed), len(grid), g.min(), g.max()))
+slow = grid[grid < 90]
+one = np.insert(slow, 20, slow[19] + 0.44)  # a single extra beat in a fill
+check("a single inserted half beat is dropped", len(PL.steady_octave(one)) == len(slow))
+steady = np.cumsum(0.66 + 0.04 * np.sin(np.arange(300) / 7))  # a steady song with a little drift: untouched
+check("a steady song keeps every beat", np.array_equal(PL.steady_octave(steady), np.round(steady, 6)))
+
 check("lyrics run after the chords unless PARALLEL_LYRICS=1", PL.PARALLEL is (os.environ.get("PARALLEL_LYRICS") == "1"))
 
-# English: the de-reverbed pass is skipped (never better, ~4 min); Thai keeps it
-calls = []
+# the de-reverbed pass: never for English (never better, ~4 min); for other languages only when the plain stem's
+# transcript is no answer (loops or empty: tests/lyrics/dereverb_study.py); DEREVERB_ALWAYS=1 = every time
 saved = (PL.has_whisper, PL._whisper_model, PL.vocal_presence, PL._transcribe)
 PL.has_whisper, PL._whisper_model = (lambda: True), (lambda: None)
-PL._transcribe = lambda m, y, lang, label, rep, **k: {"lang": lang, "words": W(["x"]), "conf": 0.9, "cut": False, "loops": 0.0}
-for lang in ("en", "th"):
-    PL.vocal_presence = lambda m, y, s, lang=lang: {"sung": True, "lang": lang, "why": ""}
-    PL.transcribe_lyrics(np.zeros(SR * 2, np.float32), None, lambda *a: None, 0.5, lambda lang=lang: calls.append(lang))
+
+
+def dereverb_runs(lang, loops, always=False):
+    calls = []
+    PL._transcribe = lambda m, y, lg, label, rep, **k: {"lang": lg, "words": W(["x"]), "conf": 0.9, "cut": False, "loops": loops}
+    PL.vocal_presence = lambda m, y, s: {"sung": True, "lang": lang, "why": ""}
+    os.environ["DEREVERB_ALWAYS"] = "1" if always else "0"
+    PL.transcribe_lyrics(np.zeros(SR * 2, np.float32), None, lambda *a: None, 0.5, lambda: calls.append(lang))
+    os.environ.pop("DEREVERB_ALWAYS")
+    return bool(calls)
+
+
+check("de-reverb: not for a usable Thai transcript", not dereverb_runs("th", 0.0))
+check("de-reverb: for a looping Thai transcript", dereverb_runs("th", 0.5))
+check("de-reverb: never for English, even looping", not dereverb_runs("en", 0.5))
+check("de-reverb: DEREVERB_ALWAYS=1 keeps both passes", dereverb_runs("th", 0.0, always=True))
 PL.has_whisper, PL._whisper_model, PL.vocal_presence, PL._transcribe = saved
-check("de-reverb skipped for English, kept for Thai", calls == ["th"], calls)
 os.environ["DEREVERB_EN"] = "1"
 check("DEREVERB_EN=1 keeps it for English", PL.dereverb_for("en") and PL.dereverb_for("th") and PL.dereverb_for(None))
 del os.environ["DEREVERB_EN"]

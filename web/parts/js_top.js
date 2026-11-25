@@ -46,7 +46,8 @@ const S = { sources: [], active: null, seq: 0, backend: null, cur: -2, curLine: 
   disp: pick(store.get('cl-disp2'), ['chord', 'lyric'], 'lyric'),
   layout: pick(store.get('cl-layout'), ['tb', 'lr'], 'tb'), dockW: Math.max(260, +store.get('cl-dockw') || Math.round(innerWidth * 0.42)), recs: [], dockH: Math.max(120, +store.get('cl-dockh') || Math.round(Math.max(220, Math.min(340, innerHeight * 0.36)))),
   ptab: pick(store.get('cl-ptab'), ['sheet', 'play'], 'sheet'),
-  pro: (store.get('cl-pro') ?? (EDITION === 'free' ? '0' : '1')) === '1',
+  // simple (easy) layout first in both editions; the full edition's old 'cl-pro' was saved as '1' on every start, so it uses a new name
+  pro: (store.get('cl-pro2') ?? (EDITION === 'free' ? store.get('cl-pro') : null) ?? '0') === '1',
   view: 'split', dock: pick(store.get('cl-dock'), ['hide', 'normal', 'tall'], innerWidth < 600 || EDITION === 'free' ? 'hide' : 'normal'),
   follow: store.get('cl-follow') !== '0', userScrollAt: 0, lyPanel: false, lyPaste: false, stripChords: store.get('cl-strip') !== '0', exMode: null };
 const audio = new Audio(); audio.preservesPitch = true;
@@ -64,5 +65,17 @@ const noteName = m => NAMES[mod(Math.round(m) + trOf(A()))];
 const fmt = t => { t = Math.max(0, t || 0); return Math.floor(t / 60) + ':' + String(Math.floor(t % 60)).padStart(2, '0'); };
 const same = (a, b) => a.root === b.root && a.q === b.q && (a.bass ?? -1) === (b.bass ?? -1);
 const minorish = c => c && c.root >= 0 && MA.baseOf(c.q) === 'm';
-const segWords = t => (window.Intl && Intl.Segmenter) ? [...new Intl.Segmenter('th', { granularity: 'word' }).segment(t)].map(x => x.segment) : t.split(/(\s+)/).filter(Boolean);
+const segWords = t => {
+  const raw = (window.Intl && Intl.Segmenter) ? [...new Intl.Segmenter('th', { granularity: 'word' }).segment(t)].map(x => x.segment) : t.split(/(\s+)/).filter(Boolean);
+  // punctuation stays with its word ("grace!", "’Twas"), so the lane and the score never give it a place of its own;
+  // the pieces still join back to the same text (callers count characters)
+  const out = []; let lead = '';
+  for (const w of raw) {
+    if (/^[^\p{L}\p{M}\p{N}\s]+$/u.test(w)) { if (out.length && !/\s$/.test(out[out.length - 1])) out[out.length - 1] += w; else lead += w; }
+    else if (/^\s+$/.test(w)) { if (lead) { out.push(lead); lead = ''; } out.push(w); }
+    else { out.push(lead + w); lead = ''; }
+  }
+  if (lead) out.push(lead);
+  return out;
+};
 function hint(t, err) { $('#hint').textContent = t || ''; $('#hint').className = 'hint' + (err ? ' err' : ''); }

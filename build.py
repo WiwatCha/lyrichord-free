@@ -70,6 +70,12 @@ version = (root / "backend/VERSION").read_text().strip()
 t = t.replace("/*VERSION*/'dev'", json.dumps(version))
 edition = "free" if "--edition=free" in sys.argv or ("--edition" in sys.argv and sys.argv[sys.argv.index("--edition") + 1:][:1] == ["free"]) else "full"
 t = t.replace("/*EDITION*/'full'", json.dumps(edition))
+# the full edition's navy theme is set on <body> in the page itself, so it shows from the first paint
+if edition == "full":
+    assert t.count('<body class="v-split">') == 1
+    t = t.replace('<body class="v-split">', '<body class="v-split navy">')
+    t = t.replace('<meta name="theme-color" content="#0b0d12">', '<meta name="theme-color" content="#0a1730">')
+    t = t.replace("fill='%230b0d12'", "fill='%230a1730'").replace("%23ff5a7a", "%232ed3c6")
 html = t.replace("/*VOCAB*/", "const CHORD_VOCAB = " + v.strip() + ";").replace("/*ANALYSIS*/", a)
 out = root / "backend/web/index.html"
 out.parent.mkdir(parents=True, exist_ok=True)
